@@ -3,8 +3,8 @@ import { render, screen } from '@testing-library/react'
 import App from './App'
 
 describe('App', () => {
-  it('renders the app title from the store', () => {
+  it('renders the hello world page', () => {
     render(<App />)
-    expect(screen.getByRole('heading', { name: 'RogueSVP' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Hello world' })).toBeInTheDocument()
   })
 })
