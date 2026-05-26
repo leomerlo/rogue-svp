@@ -68,6 +68,27 @@ La lógica del puzzle vive en **TypeScript puro, sin React**, en un módulo aisl
 - Vitest para tests de la lógica pura.
 - Sin backend.
 
+### 3.5 Web ahora, mobile después (Capacitor)
+
+Decisión: **React web puro durante M1-M3, y envolver con Capacitor cuando se quiera ir a mobile.** No usamos React Native.
+
+**Por qué no React Native:** RN renderiza con componentes nativos de UI (pensado para apps tipo listas/formularios), no para render custom de un tablero de juego con animaciones. Hacer un juego en RN obliga a meter `react-native-skia` o un canvas y pelear contra el framework. La web ya tiene SVG/Canvas/WebGL de primera, que es donde viven los juegos 2D.
+
+| | React web + Capacitor | React Native |
+|---|---|---|
+| Render de tablero/cartas | SVG/Canvas/WebGL nativo del browser | Necesita Skia/canvas extra |
+| Animaciones de juego | Maduras (CSS, Pixi, Framer Motion) | Más fricción para game-feel |
+| Iterar rápido | Recargar el browser; deploy = una URL | Build nativo más pesado |
+| Compartir prototipo | Mandar un link | Hay que instalar app |
+| Llegar a iOS/Android | Capacitor envuelve el build web | Nativo de entrada |
+| Ecosistema de juegos 2D | Pixi, Phaser, etc. | Pobre |
+
+**Plan:**
+- **M1-M3:** React web puro. Se itera en el browser y se comparte por link; cero costo mobile.
+- **Cuando se quiera mobile:** envolver el mismo build con **Capacitor** (o Tauri si además se quiere desktop). No se reescribe nada — es la app web corriendo en un WebView con acceso a APIs nativas.
+
+**Implicancia para M1:** diseñar el layout **responsive y touch-first** (que funcione con dedo, no solo mouse) desde el inicio, para que el wrapper a mobile sea trivial. Encaja con la interacción "click/tap-para-colocar" ya elegida en §3.3.
+
 ---
 
 ## 4. Modelo de datos propuesto (borrador)
