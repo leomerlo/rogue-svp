@@ -125,19 +125,25 @@ interface Cell {
 interface GameState {
   rows: number;
   cols: number;
-  cells: Cell[];         // longitud = rows*cols, indexado por row*cols + col
-  hand: Card[];          // mano visible: siempre 3 cartas mientras quede mazo
+  cells: Cell[];                      // longitud = rows*cols, indexado por row*cols + col
+  hand: Card[];                       // mano visible: siempre 3 cartas mientras quede mazo
   deck: Card[];
-  redealsLeft: number;   // descarte de la mano completa (no por carta)
+  placedCards: Record<string, Card>;  // cartas sentadas; clave = card.id
+  redealsLeft: number;                // descarte de la mano completa (no por carta)
   status: 'playing' | 'won' | 'lost';
 }
 ```
 
+**Zonas de cartas (deck → hand → mesa):**
+
+Cada carta vive en exactamente una zona a la vez. `deck` y `hand` guardan los objetos `Card` completos; la mesa guarda sólo referencias (`cell.cardId`). Al sentar una carta, se saca de `hand`, se registra en `placedCards[card.id]`, y se asigna `cell.cardId`. Sin `placedCards`, los datos de color de una carta sentada se pierden al salir de `hand`/`deck`. Los swaps mueven ids entre celdas; los objetos permanecen en `placedCards`.
+
 **Helpers derivados (no estado):**
 
-- `neighborsOf(cell)` → hasta 4 celdas libres adyacentes en la grilla.
+- `neighborsOf(cell, state)` → hasta 4 celdas libres adyacentes en la grilla.
 - `edgeColor(card, side)` → color del borde `top|bottom|left|right` según la convención A/B.
-- `isHappy(cell, state)` → todos los bordes compartidos con vecinos libres coinciden (o uno es wild).
+- `getCard(state, id)` → busca en `placedCards`, luego `hand`, luego `deck`.
+- `isHappy(cell, state)` → todos los bordes compartidos con vecinos sentados coinciden (o uno es wild).
 
 > El modelo deja "huecos" baratos (`fixedColor`) para no rehacerlo cuando crezca, pero no implementa nada más allá del MVP.
 
