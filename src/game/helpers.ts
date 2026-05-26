@@ -1,0 +1,128 @@
+import type { Card, Color, Cell, GameState, Side } from './types';
+
+type CellLookup = {
+  cellsByCoord: Map<string, Cell>;
+  indexByCoord: Map<string, number>;
+};
+
+function cellKey(row: number, col: number): string {
+  return `${row},${col}`;
+}
+
+function buildCellLookup(state: GameState): CellLookup {
+  const cellsByCoord = new Map<string, Cell>();
+  const indexByCoord = new Map<string, number>();
+
+  for (let i = 0; i < state.cells.length; i++) {
+    const cell = state.cells[i]!;
+    const key = cellKey(cell.row, cell.col);
+    cellsByCoord.set(key, cell);
+    indexByCoord.set(key, i);
+  }
+
+  return { cellsByCoord, indexByCoord };
+}
+
+function getCellIndex(state: GameState, row: number, col: number): number {
+  return buildCellLookup(state).indexByCoord.get(cellKey(row, col)) ?? -1;
+}
+
+function getCard(state: GameState, id: string): Card | null {
+  return state.placedCards[id]
+    ?? state.hand.find(c => c.id === id)
+    ?? state.deck.find(c => c.id === id)
+    ?? null;
+}
+
+function neighborsOf(cell: Cell, state: GameState, lookup = buildCellLookup(state)): Cell[] {
+  const neighbors: Cell[] = [];
+  const deltas = [
+    { dr: -1, dc: 0 },
+    { dr: 1, dc: 0 },
+    { dr: 0, dc: -1 },
+    { dr: 0, dc: 1 },
+  ];
+
+  for (const { dr, dc } of deltas) {
+    const row = cell.row + dr;
+    const col = cell.col + dc;
+    if (row < 0 || row >= state.rows || col < 0 || col >= state.cols) continue;
+
+    const neighbor = lookup.cellsByCoord.get(cellKey(row, col));
+    if (neighbor === undefined || neighbor.state === 'blocked') continue;
+
+    neighbors.push(neighbor);
+  }
+
+  return neighbors;
+}
+
+function placedNeighborsOf(cell: Cell, state: GameState, lookup: CellLookup): Cell[] {
+  return neighborsOf(cell, state, lookup).filter((neighbor) => neighbor.cardId !== null);
+}
+
+function edgeColor(card: Card, side: Side): Color {
+  switch (side) {
+    case 'top':
+    case 'left':
+      return card.colorA;
+    case 'bottom':
+    case 'right':
+      return card.colorB;
+  }
+}
+
+function touchingSides(cell: Cell, neighbor: Cell): { mySide: Side; theirSide: Side } {
+  const dr = neighbor.row - cell.row
+  const dc = neighbor.col - cell.col
+  if (dr === -1) return { mySide: 'top',    theirSide: 'bottom' }
+  if (dr ===  1) return { mySide: 'bottom', theirSide: 'top'    }
+  if (dc === -1) return { mySide: 'left',   theirSide: 'right'  }
+  if (dc ===  1) return { mySide: 'right',  theirSide: 'left'   }
+  throw new Error('not adjacent')
+}
+
+function edgesMatch(a: Card, aSide: Side, b: Card, bSide: Side): boolean {
+  return edgeColor(a, aSide) === edgeColor(b, bSide)
+}
+
+function isHappy(cell: Cell, state: GameState, lookup = buildCellLookup(state)): boolean {
+  if (cell.cardId === null) return false;
+  const myCard = getCard(state, cell.cardId);
+  if (myCard === null) return false;
+
+  const neighbors = placedNeighborsOf(cell, state, lookup);
+
+  return neighbors.every(neighbor => {
+    const neighborCard = getCard(state, neighbor.cardId!)
+    if (neighborCard === null) return false  // not true — missing card is a failure
+    const { mySide, theirSide } = touchingSides(cell, neighbor)
+    return edgesMatch(myCard, mySide, neighborCard, theirSide)
+  })
+}
+
+function isTableFull(state: GameState): boolean {
+  return state.cells
+    .filter(cell => cell.state === 'free')
+    .every(cell => cell.cardId !== null);
+}
+
+function isSolved(state: GameState): boolean {
+  if (!isTableFull(state)) return false;
+  const lookup = buildCellLookup(state);
+  return state.cells
+    .filter(cell => cell.state === 'free')
+    .every(cell => isHappy(cell, state, lookup));
+}
+
+export {
+  isHappy,
+  neighborsOf,
+  edgeColor,
+  getCard,
+  getCellIndex,
+  isTableFull,
+  touchingSides,
+  edgesMatch,
+  isSolved,
+}
