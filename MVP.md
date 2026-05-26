@@ -21,16 +21,22 @@ El diseño completo describe un juego grande. El MVP **deliberadamente no lo con
 
 ### 2.1 Incluido
 
-- Modelo de datos del puzzle: cartas (2 colores), wilds, mesa como grafo de asientos.
-- **Una topología fija hecha a mano**: anillo simple (6-8 asientos).
-- **Un mazo hecho a mano** con solución conocida (garantiza solvability sin generador).
+- Modelo de datos del puzzle: cartas (2 colores con bordes cardinales), wilds, mesa como **grilla con celdas bloqueadas** (ADR-0001).
+- **Dos topologías fijas hechas a mano** (Q2: path-primero, ambas):
+  1. **Path** — 1x6 (fila simple, 6 asientos en cadena). Es el caso más cercano al row-segment del original y el más simple para arrancar.
+  2. **Ring** — 3x3 con la celda central bloqueada → 8 asientos en anillo perimetral. "Happy Hour Lite": misma idea que el Level 1 del original pero más chico.
+- **Un mazo hecho a mano por mesa**, con solución conocida (garantiza solvability sin generador). Composición:
+  - **4 colores** (rojo, azul, verde, amarillo) — fiel al original.
+  - **1 wild** por mazo — testea la mecánica de wild a pequeña escala.
+  - **Tamaño = #asientos + 6** — buffer suficiente para que los 4 re-deals tengan utilidad real. Path 1x6 → mazo de 12; ring 3x3 → mazo de 14.
+- **Mano de 3 cartas visibles** (top del mazo); al sentar una, se roba otra automáticamente.
 - Interacción de jugador:
   - Sentar una carta de la mano en un asiento.
-  - Hacer *swap* entre dos cartas sentadas (con límite de swaps).
-  - Descartar una carta (con límite de descartes).
+  - Hacer *swap* entre dos cartas sentadas, o mover una sentada a un asiento libre (ilimitado).
+  - **Re-deal**: descartar las 3 cartas de la mano y robar 3 nuevas (límite de 4 por fiesta).
 - Cálculo de "felicidad" por invitado y resaltado visual de vecinos en conflicto.
-- Detección de victoria: todos los invitados felices.
-- Estado de derrota: sin swaps/descartes y mesa no resuelta.
+- Detección de victoria: mesa llena y todos los invitados felices.
+- Estado de derrota: mesa llena pero algún invitado infeliz.
 
 ### 2.2 Explícitamente NO incluido
 
@@ -96,28 +102,42 @@ Decisión: **React web puro durante M1-M3, y envolver con Capacitor cuando se qu
 ```ts
 type Color = 'red' | 'blue' | 'green' | 'yellow' | 'wild';
 
+// La carta tiene dos colores. Por convención fija, colorA cubre los bordes
+// superior+izquierdo de la carta y colorB los bordes inferior+derecho.
+// El matching entre dos cartas adyacentes en la grilla compara el borde
+// específico que se tocan (no las "mitades" de forma abstracta).
 interface Card {
   id: string;
-  left: Color;   // mitad diagonal A
-  right: Color;  // mitad diagonal B
+  colorA: Color;   // cubre bordes top + left
+  colorB: Color;   // cubre bordes bottom + right
 }
 
-interface Seat {
-  id: string;
-  neighbors: string[];      // ids de asientos adyacentes
-  cardId: string | null;    // carta sentada, si hay
+type CellState = 'free' | 'blocked';
+
+interface Cell {
+  row: number;
+  col: number;
+  state: CellState;
+  cardId: string | null;    // sólo válido si state === 'free'
   fixedColor?: Color;       // VIP (fuera de MVP, pero el campo existe)
 }
 
 interface GameState {
-  table: Record<string, Seat>;
-  hand: Card[];
+  rows: number;
+  cols: number;
+  cells: Cell[];         // longitud = rows*cols, indexado por row*cols + col
+  hand: Card[];          // mano visible: siempre 3 cartas mientras quede mazo
   deck: Card[];
-  swapsLeft: number;
-  discardsLeft: number;
+  redealsLeft: number;   // descarte de la mano completa (no por carta)
   status: 'playing' | 'won' | 'lost';
 }
 ```
+
+**Helpers derivados (no estado):**
+
+- `neighborsOf(cell)` → hasta 4 celdas libres adyacentes en la grilla.
+- `edgeColor(card, side)` → color del borde `top|bottom|left|right` según la convención A/B.
+- `isHappy(cell, state)` → todos los bordes compartidos con vecinos libres coinciden (o uno es wild).
 
 > El modelo deja "huecos" baratos (`fixedColor`) para no rehacerlo cuando crezca, pero no implementa nada más allá del MVP.
 
