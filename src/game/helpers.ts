@@ -1,22 +1,32 @@
 import type { Card, Color, Cell, GameState, Side } from './types';
 
-/**
- * Returns the cell at the given row and column.
- * @param state - The game state.
- * @param row - The row of the cell to get.
- * @param col - The column of the cell to get.
- * @returns The cell at the given row and column.
- */
-function getCell(state: GameState, row: number, col: number): Cell {
-  return state.cells.find(cell => cell.row === row && cell.col === col)!;
+type CellLookup = {
+  cellsByCoord: Map<string, Cell>;
+  indexByCoord: Map<string, number>;
+};
+
+function cellKey(row: number, col: number): string {
+  return `${row},${col}`;
 }
 
-/**
- * Returns the card with the given id.
- * @param state - The game state.
- * @param id - The id of the card to get.
- * @returns The card with the given id.
- */
+function buildCellLookup(state: GameState): CellLookup {
+  const cellsByCoord = new Map<string, Cell>();
+  const indexByCoord = new Map<string, number>();
+
+  for (let i = 0; i < state.cells.length; i++) {
+    const cell = state.cells[i]!;
+    const key = cellKey(cell.row, cell.col);
+    cellsByCoord.set(key, cell);
+    indexByCoord.set(key, i);
+  }
+
+  return { cellsByCoord, indexByCoord };
+}
+
+function getCellIndex(state: GameState, row: number, col: number): number {
+  return buildCellLookup(state).indexByCoord.get(cellKey(row, col)) ?? -1;
+}
+
 function getCard(state: GameState, id: string): Card | null {
   return state.placedCards[id]
     ?? state.hand.find(c => c.id === id)
@@ -24,55 +34,44 @@ function getCard(state: GameState, id: string): Card | null {
     ?? null;
 }
 
-/**
- * Returns the neighbors of a cell.
- * @param cell - The cell to get the neighbors of.
- * @returns The neighbors of the cell.
- */
-function neighborsOf(cell: Cell, state: GameState): Cell[] {
+function neighborsOf(cell: Cell, state: GameState, lookup = buildCellLookup(state)): Cell[] {
+  const neighbors: Cell[] = [];
   const deltas = [
     { dr: -1, dc: 0 },
     { dr: 1, dc: 0 },
     { dr: 0, dc: -1 },
     { dr: 0, dc: 1 },
-  ]
+  ];
 
-  function inBounds(row: number, col: number): boolean {
-    return row >= 0 && row < state.rows && col >= 0 && col < state.cols;
+  for (const { dr, dc } of deltas) {
+    const row = cell.row + dr;
+    const col = cell.col + dc;
+    if (row < 0 || row >= state.rows || col < 0 || col >= state.cols) continue;
+
+    const neighbor = lookup.cellsByCoord.get(cellKey(row, col));
+    if (neighbor === undefined || neighbor.state === 'blocked') continue;
+
+    neighbors.push(neighbor);
   }
 
-  return deltas
-    .map(({ dr, dc }) => ({ row: cell.row + dr, col: cell.col + dc }))
-    .filter(({ row, col }) => inBounds(row, col))
-    .map(({ row, col }) => getCell(state, row, col))
-    .filter((neighbor) => neighbor.state === 'free')
+  return neighbors;
 }
 
-/**
- * Returns the color of the edge of a card on a given side.
- * @param card - The card to get the edge color of.
- * @param side - The side of the card to get the edge color of.
- * @returns The color of the edge of the card on the given side.
- */
+function placedNeighborsOf(cell: Cell, state: GameState, lookup: CellLookup): Cell[] {
+  return neighborsOf(cell, state, lookup).filter((neighbor) => neighbor.cardId !== null);
+}
+
 function edgeColor(card: Card, side: Side): Color {
   switch (side) {
     case 'top':
-      return card.colorA;
-    case 'bottom':
-      return card.colorB;
     case 'left':
       return card.colorA;
+    case 'bottom':
     case 'right':
       return card.colorB;
   }
 }
 
-/**
- * Returns the sides that are touching between two cells.
- * @param cell - The cell to get the touching sides of.
- * @param neighbor - The neighbor cell to get the touching sides of.
- * @returns The sides that are touching between the two cells.
- */
 function touchingSides(cell: Cell, neighbor: Cell): { mySide: Side; theirSide: Side } {
   const dr = neighbor.row - cell.row
   const dc = neighbor.col - cell.col
@@ -83,31 +82,17 @@ function touchingSides(cell: Cell, neighbor: Cell): { mySide: Side; theirSide: S
   throw new Error('not adjacent')
 }
 
-/**
- * Returns true if the edges of the two cards match.
- * @param a - The first card to compare.
- * @param aSide - The side of the first card to compare.
- * @param b - The second card to compare.
- * @param bSide - The side of the second card to compare.
- * @returns True if the edges of the two cards match.
- */
 function edgesMatch(a: Card, aSide: Side, b: Card, bSide: Side): boolean {
   return edgeColor(a, aSide) === edgeColor(b, bSide)
 }
 
-/**
- * Returns true if the cell is happy.
- * @param cell - The cell to check if it is happy.
- * @param state - The game state.
- * @returns True if the cell is happy.
- */
-function isHappy(cell: Cell, state: GameState): boolean {
+function isHappy(cell: Cell, state: GameState, lookup = buildCellLookup(state)): boolean {
   if (cell.cardId === null) return false;
-  const myCard = getCard(state, cell.cardId!);
+  const myCard = getCard(state, cell.cardId);
   if (myCard === null) return false;
-  
-  const neighbors = neighborsOf(cell, state).filter(n => n.cardId !== null);
-  
+
+  const neighbors = placedNeighborsOf(cell, state, lookup);
+
   return neighbors.every(neighbor => {
     const neighborCard = getCard(state, neighbor.cardId!)
     if (neighborCard === null) return false  // not true — missing card is a failure
@@ -116,10 +101,18 @@ function isHappy(cell: Cell, state: GameState): boolean {
   })
 }
 
-function isSolved(state: GameState): boolean {
+function isTableFull(state: GameState): boolean {
   return state.cells
     .filter(cell => cell.state === 'free')
-    .every(cell => cell.cardId !== null && isHappy(cell, state));
+    .every(cell => cell.cardId !== null);
+}
+
+function isSolved(state: GameState): boolean {
+  if (!isTableFull(state)) return false;
+  const lookup = buildCellLookup(state);
+  return state.cells
+    .filter(cell => cell.state === 'free')
+    .every(cell => isHappy(cell, state, lookup));
 }
 
 export {
@@ -127,7 +120,9 @@ export {
   neighborsOf,
   edgeColor,
   getCard,
+  getCellIndex,
+  isTableFull,
   touchingSides,
   edgesMatch,
-  isSolved
+  isSolved,
 }

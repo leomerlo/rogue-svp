@@ -114,7 +114,7 @@ describe('edgesMatch', () => {
 })
 
 describe('neighborsOf', () => {
-  it('returns only free adjacent cells', () => {
+  it('returns adjacent seats, excluding blocked cells', () => {
     const cells = [
       makeCell(0, 0),
       makeCell(0, 1),
@@ -124,6 +124,19 @@ describe('neighborsOf', () => {
     const gameState = makeState(2, 2, cells)
 
     expect(neighborsOf(cells[0]!, gameState).map(c => [c.row, c.col])).toEqual([[0, 1]])
+  })
+
+  it('includes occupied adjacent seats', () => {
+    const left = makeCard('left', 'red', 'green')
+    const right = makeCard('right', 'green', 'blue')
+    const cells = [
+      makeCell(0, 0, { cardId: 'left' }),
+      makeCell(0, 1, { cardId: 'right' }),
+    ]
+    const gameState = makeState(1, 2, cells, { placedCards: { left, right } })
+
+    expect(neighborsOf(cells[0]!, gameState)).toHaveLength(1)
+    expect(neighborsOf(cells[0]!, gameState)[0]!.cardId).toBe('right')
   })
 
   it('excludes out-of-bounds positions', () => {
