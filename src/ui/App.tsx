@@ -1,0 +1,13 @@
+import { useAppStore } from '../store/appStore'
+
+const App = () => {
+  const title = useAppStore((state) => state.title)
+
+  return (
+    <main className="flex min-h-screen items-center justify-center bg-slate-950 text-slate-100">
+      <h1 className="text-2xl font-semibold tracking-tight">{title}</h1>
+    </main>
+  )
+}
+
+export default App
