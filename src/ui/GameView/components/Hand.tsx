@@ -1,12 +1,13 @@
-import { useGameStore } from "@/store/gameStore"
 import Card from "./Card"
 import type { Card as CardType } from "@/game/types"
+import { useGame } from "@/ui/hooks/useGame"
 
 const Hand = () => {
-  const hand = useGameStore((state) => state.gameState.hand)
+  const { gameState } = useGame()
+
   return (
     <div className="grid grid-cols-3 gap-2" data-testid="hand">
-      {hand.map((card: CardType) => (
+      {gameState.hand.map((card: CardType) => (
         <div key={card.id} className="flex align-center justify-center">
           <Card card={card} />
         </div>

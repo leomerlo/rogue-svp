@@ -16,5 +16,6 @@ export function createDefaultGameState(): GameState {
     redealsLeft: 4,
     placedCards: {},
     status: 'playing',
+    selectedCardId: null,
   }
 }

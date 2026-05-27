@@ -35,5 +35,6 @@ export function makeState(
     redealsLeft: 4,
     placedCards: options.placedCards ?? {},
     status: options.status ?? 'playing',
+    selectedCardId: null,
   }
 }

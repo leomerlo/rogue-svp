@@ -12,6 +12,21 @@ function drawCards(state: GameState): GameState {
   return { ...state, hand, deck };
 }
 
+function shuffleDeck(state: GameState): GameState {
+  return { ...state, deck: [...state.deck].sort(() => Math.random() - 0.5) };
+}
+
+function selectCard(state: GameState, cardId: string): GameState {
+  if (state.hand.find(c => c.id === cardId) === undefined) {
+    throw new Error('Card not found');
+  }
+  return { ...state, selectedCardId: cardId };
+}
+
+function deselectCard(state: GameState): GameState {
+  return { ...state, selectedCardId: null };
+}
+
 function applyMove(state: GameState, move: Move): GameState {
   if (move.row < 0 || move.col < 0 || move.row >= state.rows || move.col >= state.cols) {
     throw new Error('Invalid move');
@@ -62,5 +77,8 @@ function applyMove(state: GameState, move: Move): GameState {
 }
 
 export {
-  applyMove
+  applyMove,
+  selectCard,
+  deselectCard,
+  shuffleDeck
 }
