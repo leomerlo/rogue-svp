@@ -59,7 +59,7 @@ La capa narrativa cuenta una **saga generacional** de comedia/drama al estilo *P
 ### 2.4 Swaps
 
 - Una carta ya sentada puede moverse a un asiento libre, o intercambiarse con otra ya sentada.
-- **Swaps ilimitados** (igual que el original). La presión viene de los re-deals limitados y de tener que decidir cuándo "cerrar" la mesa, no de racionar movimientos.
+- **Swaps ilimitados mientras el estado sea `playing`** (igual que el original durante la fase activa). Cuando la mesa queda llena, la partida se resuelve inmediatamente en victoria o derrota y ya no se permiten swaps.
 
 ### 2.5 Puntaje
 

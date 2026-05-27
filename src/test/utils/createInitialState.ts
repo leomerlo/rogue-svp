@@ -1,5 +1,5 @@
 import { makeCard, makeCell, makeState } from '@/test/utils/factories'
-import type { Card, GameState, Move } from '@/game/types'
+import type { Card, GameState, Place } from '@/game/types'
 
 const PATH_ROWS = 1
 const PATH_COLS = 6
@@ -23,20 +23,20 @@ const PATH_BUFFER_CARDS: Card[] = [
   makeCard('path-d5', 'yellow', 'green'),
 ]
 
-const M11_PATH_SOLUTION: Move[] = [
-  { type: 'place', cardId: 'path-p0', row: 0, col: 0 },
-  { type: 'place', cardId: 'path-p1', row: 0, col: 1 },
-  { type: 'place', cardId: 'path-p2', row: 0, col: 2 },
-  { type: 'place', cardId: 'path-p3', row: 0, col: 3 },
-  { type: 'place', cardId: 'path-p4', row: 0, col: 4 },
-  { type: 'place', cardId: 'path-p5', row: 0, col: 5 },
+const M11_PATH_SOLUTION: Place[] = [
+  { cardId: 'path-p0', row: 0, col: 0 },
+  { cardId: 'path-p1', row: 0, col: 1 },
+  { cardId: 'path-p2', row: 0, col: 2 },
+  { cardId: 'path-p3', row: 0, col: 3 },
+  { cardId: 'path-p4', row: 0, col: 4 },
+  { cardId: 'path-p5', row: 0, col: 5 },
 ]
 
 const M11_PATH_MIDGAME_PLACED_COUNT = 3
 const M11_PATH_MIDGAME_ROWS = 2
 const M11_PATH_MIDGAME_BLOCKED_ROW = 1
 
-const M11_PATH_REMAINING_SOLUTION: Move[] = M11_PATH_SOLUTION.slice(M11_PATH_MIDGAME_PLACED_COUNT)
+const M11_PATH_REMAINING_SOLUTION: Place[] = M11_PATH_SOLUTION.slice(M11_PATH_MIDGAME_PLACED_COUNT)
 
 const M11_PATH_LOSE_ROW_CARDS: Card[] = [
   ...PATH_SOLUTION_CARDS.slice(0, M11_PATH_MIDGAME_PLACED_COUNT),

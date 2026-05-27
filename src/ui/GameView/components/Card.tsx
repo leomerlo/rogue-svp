@@ -1,7 +1,4 @@
 import type { Color, Card as CardType } from "@/game/types"
-import { useGame } from "@/ui/hooks/useGame"
-
-type Happiness = 'happy' | 'unhappy';
 
 const COLOR_FILL: Record<Color, string> = {
   red: "#ef4444",
@@ -11,24 +8,23 @@ const COLOR_FILL: Record<Color, string> = {
   wild: "#a855f7",
 }
 
-const Card = ({ card, happiness }: { card: CardType, happiness?: Happiness }) => {
-  const { gameState, dispatch } = useGame()
+type CardProps = {
+  card: CardType
+  happiness?: 'happy' | 'unhappy'
+  selected?: boolean
+  disabled?: boolean
+  onClick?: () => void
+}
+
+const Card = ({ card, happiness, selected, disabled, onClick }: CardProps) => {
   const colorA = COLOR_FILL[card.colorA]
   const colorB = COLOR_FILL[card.colorB]
 
-  const borderColor = gameState.selectedCardId === card.id
+  const borderColor = selected
     ? 'border-blue-500'
     : happiness === 'happy' ? 'border-green-500'
     : happiness === 'unhappy' ? 'border-red-500'
     : 'border-gray-300';
-
-  const selectCardHandler = () => {
-    if (gameState.selectedCardId === card.id) {
-      dispatch({ type: 'deselectCard' })
-    } else {
-      dispatch({ type: 'selectCard', cardId: card.id })
-    }
-  }
 
   return (
     <div
@@ -38,8 +34,9 @@ const Card = ({ card, happiness }: { card: CardType, happiness?: Happiness }) =>
         background: `linear-gradient(to bottom right, ${colorA} 50%, ${colorB} 50%)`,
       }}
       aria-label={`${card.colorA} / ${card.colorB}`}
-      onClick={() => selectCardHandler()}
+      onClick={disabled ? undefined : onClick}
       role="button"
+      aria-disabled={disabled}
     />
   )
 }

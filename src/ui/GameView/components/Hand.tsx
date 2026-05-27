@@ -1,15 +1,21 @@
 import Card from "./Card"
 import type { Card as CardType } from "@/game/types"
 import { useGame } from "@/ui/hooks/useGame"
+import { resolveHandCardClick } from "@/ui/GameView/interactions/resolveHandCardClick"
 
 const Hand = () => {
-  const { gameState } = useGame()
+  const { gameState, dispatch } = useGame()
+
+  const selectCardHandler = (cardId: string) => {
+    const action = resolveHandCardClick(gameState, cardId);
+    if (action) dispatch(action);
+  }
 
   return (
     <div className="grid grid-cols-3 gap-2" data-testid="hand">
       {gameState.hand.map((card: CardType) => (
         <div key={card.id} className="flex align-center justify-center">
-          <Card card={card} />
+          <Card card={card} selected={gameState.selectedCardId === card.id} onClick={() => selectCardHandler(card.id)} />
         </div>
       ))}
     </div>

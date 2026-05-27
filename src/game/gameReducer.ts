@@ -1,5 +1,5 @@
 import type { GameState, GameAction } from '@/game/types'
-import { selectCard, deselectCard, applyMove, shuffleDeck } from '@/game/movement'
+import { selectCard, deselectCard, applyMove, shuffleDeck, swapCard } from '@/game/movement'
 import { createM11PathInitialState } from '@/test/utils/createInitialState'
 
 export function gameReducer(state: GameState, action: GameAction): GameState {
@@ -10,6 +10,8 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       return deselectCard(state)
     case 'placeCard':
       return applyMove(state, action.move)
+    case 'swapCard':
+      return swapCard(state, action.move)
     case 'resetGame':
       return createM11PathInitialState()
     case 'shuffleDeck':

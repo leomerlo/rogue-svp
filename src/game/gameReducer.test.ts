@@ -35,7 +35,7 @@ describe('gameReducer', () => {
 
     const next = gameReducer(state, {
       type: 'placeCard',
-      move: { type: 'place', cardId: 'c1', row: 0, col: 0 },
+      move: { cardId: 'c1', row: 0, col: 0 },
     })
 
     expect(next.cells[0]!.cardId).toBe('c1')
@@ -62,6 +62,52 @@ describe('gameReducer', () => {
 
     expect(next.deck.map(card => card.id)).toEqual(['d3', 'd2', 'd1'])
     randomSpy.mockRestore()
+  })
+
+  it('swapCard swaps cards on the board while playing', () => {
+    const left = makeCard('left', 'red', 'green')
+    const right = makeCard('right', 'blue', 'yellow')
+    const state = makeState(
+      1,
+      2,
+      [makeCell(0, 0, { cardId: 'left' }), makeCell(0, 1, { cardId: 'right' })],
+      { placedCards: { left, right }, selectedCardId: 'left' },
+    )
+
+    const next = gameReducer(state, {
+      type: 'swapCard',
+      move: { from: { row: 0, col: 0 }, to: { row: 0, col: 1 } },
+    })
+
+    expect(next.cells[0]!.cardId).toBe('right')
+    expect(next.cells[1]!.cardId).toBe('left')
+    expect(next.selectedCardId).toBeNull()
+  })
+
+  it('swapCard is ignored when game is already won or lost', () => {
+    const left = makeCard('left', 'red', 'green')
+    const right = makeCard('right', 'blue', 'yellow')
+    const wonState = makeState(
+      1,
+      2,
+      [makeCell(0, 0, { cardId: 'left' }), makeCell(0, 1, { cardId: 'right' })],
+      { placedCards: { left, right }, status: 'won' },
+    )
+    const lostState = makeState(
+      1,
+      2,
+      [makeCell(0, 0, { cardId: 'left' }), makeCell(0, 1, { cardId: 'right' })],
+      { placedCards: { left, right }, status: 'lost' },
+    )
+
+    expect(gameReducer(wonState, {
+      type: 'swapCard',
+      move: { from: { row: 0, col: 0 }, to: { row: 0, col: 1 } },
+    })).toBe(wonState)
+    expect(gameReducer(lostState, {
+      type: 'swapCard',
+      move: { from: { row: 0, col: 0 }, to: { row: 0, col: 1 } },
+    })).toBe(lostState)
   })
 
   it('returns the current state for an unknown action', () => {

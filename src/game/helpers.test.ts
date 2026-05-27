@@ -7,7 +7,12 @@ import {
   isHappy,
   isSolved,
   getCard,
-} from './helpers'
+  getCardCellIndex,
+  getCardZone,
+  isCardInDeck,
+  isCardInHand,
+  isCardInPlacedCards,
+} from '@/game/helpers'
 import { makeCard, makeCell, makeState } from '@/test/utils/factories'
 
 describe('getCard', () => {
@@ -50,6 +55,43 @@ describe('getCard', () => {
     const state = makeState(1, 1, [makeCell(0, 0)])
 
     expect(getCard(state, 'missing')).toBeNull()
+  })
+})
+
+describe('card location helpers', () => {
+  const placed = makeCard('placed', 'red', 'blue')
+  const inHand = makeCard('hand', 'green', 'yellow')
+  const inDeck = makeCard('deck', 'blue', 'green')
+  const state = makeState(1, 1, [makeCell(0, 0)], {
+    placedCards: { placed },
+    hand: [inHand],
+    deck: [inDeck],
+  })
+
+  it('resolves each card zone correctly', () => {
+    expect(getCardZone(state, 'placed')).toBe('placed')
+    expect(getCardZone(state, 'hand')).toBe('hand')
+    expect(getCardZone(state, 'deck')).toBe('deck')
+    expect(getCardZone(state, 'missing')).toBeNull()
+  })
+
+  it('reuses zone lookup in boolean helpers', () => {
+    expect(isCardInPlacedCards(state, 'placed')).toBe(true)
+    expect(isCardInHand(state, 'hand')).toBe(true)
+    expect(isCardInDeck(state, 'deck')).toBe(true)
+    expect(isCardInHand(state, 'deck')).toBe(false)
+  })
+
+  it('returns the cell index for a placed card id', () => {
+    const cells = [
+      makeCell(0, 0),
+      makeCell(0, 1, { cardId: 'placed' }),
+      makeCell(0, 2),
+    ]
+    const boardState = makeState(1, 3, cells, { placedCards: { placed } })
+
+    expect(getCardCellIndex(boardState, 'placed')).toBe(1)
+    expect(getCardCellIndex(boardState, 'missing')).toBe(-1)
   })
 })
 

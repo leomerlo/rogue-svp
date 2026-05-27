@@ -1,5 +1,5 @@
-import { describe, expect, it, afterEach } from 'vitest'
-import { cleanup, screen } from '@testing-library/react'
+import { describe, expect, it, afterEach, vi } from 'vitest'
+import { cleanup, fireEvent, screen } from '@testing-library/react'
 import { makeCard, makeCell, makeState } from '@/test/utils/factories'
 import { renderWithGameState } from '@/test/utils/renderWithGameState'
 import Card from './Card'
@@ -64,10 +64,32 @@ describe('Card', () => {
 
   it('applies a blue border when the card is selected', () => {
     const card = makeCard('c1', 'red', 'green')
-    const state = makeState(1, 1, [makeCell(0, 0)], { selectedCardId: 'c1' })
+    const state = makeState(1, 1, [makeCell(0, 0)])
 
-    renderWithGameState(<Card card={card} />, state)
+    renderWithGameState(<Card card={card} selected />, state)
 
     expect(screen.getByTestId('card')).toHaveClass('border-blue-500')
+  })
+
+  it('calls onClick when the card is interactive', () => {
+    const card = makeCard('c1', 'red', 'green')
+    const state = makeState(1, 1, [makeCell(0, 0)])
+    const clickHandler = vi.fn()
+
+    renderWithGameState(<Card card={card} onClick={clickHandler} />, state)
+
+    fireEvent.click(screen.getByTestId('card'))
+    expect(clickHandler).toHaveBeenCalledTimes(1)
+  })
+
+  it('does not call onClick when the card is disabled', () => {
+    const card = makeCard('c1', 'red', 'green')
+    const state = makeState(1, 1, [makeCell(0, 0)])
+    const clickHandler = vi.fn()
+
+    renderWithGameState(<Card card={card} onClick={clickHandler} disabled />, state)
+
+    fireEvent.click(screen.getByTestId('card'))
+    expect(clickHandler).not.toHaveBeenCalled()
   })
 })
