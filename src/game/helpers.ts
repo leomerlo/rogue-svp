@@ -24,7 +24,7 @@ function buildCellLookup(state: GameState): CellLookup {
 }
 
 function getCellIndex(state: GameState, row: number, col: number): number {
-  return buildCellLookup(state).indexByCoord.get(cellKey(row, col)) ?? -1;
+  return state.cells.findIndex(cell => cell.row === row && cell.col === col);
 }
 
 function getCard(state: GameState, id: string): Card | null {
@@ -102,17 +102,13 @@ function isHappy(cell: Cell, state: GameState, lookup = buildCellLookup(state)):
 }
 
 function isTableFull(state: GameState): boolean {
-  return state.cells
-    .filter(cell => cell.state === 'free')
-    .every(cell => cell.cardId !== null);
+  return state.cells.every(cell => cell.state !== 'free' || cell.cardId !== null);
 }
 
 function isSolved(state: GameState): boolean {
   if (!isTableFull(state)) return false;
   const lookup = buildCellLookup(state);
-  return state.cells
-    .filter(cell => cell.state === 'free')
-    .every(cell => isHappy(cell, state, lookup));
+  return state.cells.every(cell => cell.state !== 'free' || isHappy(cell, state, lookup));
 }
 
 export {

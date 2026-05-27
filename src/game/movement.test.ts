@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { applyMove } from './movement'
-import { makeCard, makeCell, makeState } from './testUtils'
+import { makeCard, makeCell, makeState } from '@/test/utils/factories'
 
 describe('applyMove', () => {
   it('places a card from hand onto an empty free cell', () => {

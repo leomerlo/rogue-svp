@@ -1,4 +1,4 @@
-import type { Card, Cell, Color, GameState } from './types'
+import type { Card, Cell, Color, GameState } from '@/game/types'
 
 export function makeCard(id: string, colorA: Color, colorB: Color): Card {
   return { id, colorA, colorB }

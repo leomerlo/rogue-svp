@@ -1,4 +1,4 @@
-import { getCard, getCellIndex, isSolved, isTableFull } from './helpers';
+import { getCellIndex, isSolved, isTableFull } from './helpers';
 import type { GameState, Move } from './types';
 
 function drawCards(state: GameState): GameState {
@@ -32,8 +32,8 @@ function applyMove(state: GameState, move: Move): GameState {
     throw new Error('Cell is blocked');
   }
 
-  const card = getCard(state, move.cardId);
-  if (card === null || !state.hand.some(c => c.id === move.cardId)) {
+  const card = state.hand.find(c => c.id === move.cardId) ?? null;
+  if (card === null) {
     throw new Error('Card not found');
   }
 
