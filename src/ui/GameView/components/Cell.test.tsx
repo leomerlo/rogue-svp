@@ -1,6 +1,7 @@
 import { describe, expect, it, afterEach } from 'vitest'
-import { cleanup, render, screen } from '@testing-library/react'
-import { makeCard, makeCell } from '@/test/utils/factories'
+import { cleanup, screen } from '@testing-library/react'
+import { makeCard, makeCell, makeState } from '@/test/utils/factories'
+import { renderWithGameState } from '@/test/utils/renderWithGameState'
 import Cell from './Cell'
 
 describe('Cell', () => {
@@ -8,14 +9,18 @@ describe('Cell', () => {
 
   it('renders a Card when a card is provided', () => {
     const card = makeCard('c1', 'red', 'blue')
-    render(<Cell cell={makeCell(0, 0)} card={card} />)
+    const state = makeState(1, 1, [makeCell(0, 0)])
+
+    renderWithGameState(<Cell cell={makeCell(0, 0)} card={card} />, state)
 
     expect(screen.getByTestId('card')).toHaveAttribute('aria-label', 'red / blue')
     expect(screen.queryByTestId('empty-cell')).not.toBeInTheDocument()
   })
 
   it('renders a free empty cell when no card is placed', () => {
-    render(<Cell cell={makeCell(0, 0)} card={null} />)
+    const state = makeState(1, 1, [makeCell(0, 0)])
+
+    renderWithGameState(<Cell cell={makeCell(0, 0)} card={null} />, state)
 
     const emptyCell = screen.getByTestId('empty-cell')
     expect(emptyCell).toHaveClass('bg-white')
@@ -23,7 +28,12 @@ describe('Cell', () => {
   })
 
   it('renders a blocked empty cell when no card is placed', () => {
-    render(<Cell cell={makeCell(1, 0, { state: 'blocked' })} card={null} />)
+    const state = makeState(1, 1, [makeCell(1, 0, { state: 'blocked' })])
+
+    renderWithGameState(
+      <Cell cell={makeCell(1, 0, { state: 'blocked' })} card={null} />,
+      state,
+    )
 
     expect(screen.getByTestId('empty-cell')).toHaveClass('bg-gray-500')
   })

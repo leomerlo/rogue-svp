@@ -1,8 +1,9 @@
-import { useGameStore } from "@/store/gameStore"
 import Cell from "./Cell"
+import { useGame } from "@/ui/hooks/useGame";
 
 const Board = () => {
-  const { cells, cols, placedCards } = useGameStore((state) => state.gameState)
+  const { gameState } = useGame()
+  const { cols, cells, placedCards } = gameState;
   
   return (
     <div

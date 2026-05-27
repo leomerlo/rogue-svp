@@ -1,0 +1,33 @@
+import { describe, expect, it, afterEach } from 'vitest'
+import { cleanup, screen } from '@testing-library/react'
+import { makeCard, makeCell, makeState } from '@/test/utils/factories'
+import { renderWithGameState } from '@/test/utils/renderWithGameState'
+import Card from './Card'
+
+describe('Card', () => {
+  afterEach(() => cleanup())
+
+  it('renders both colors with a diagonal gradient and accessible label', () => {
+    const card = makeCard('c1', 'red', 'green')
+    const state = makeState(1, 1, [makeCell(0, 0)])
+
+    renderWithGameState(<Card card={card} />, state)
+
+    const element = screen.getByTestId('card')
+    expect(element).toHaveAttribute('aria-label', 'red / green')
+    expect(element.style.background).toBe(
+      'linear-gradient(right, rgb(239, 68, 68) 50%, rgb(34, 197, 94) 50%)',
+    )
+  })
+
+  it('renders wild color fills', () => {
+    const card = makeCard('wild-1', 'wild', 'blue')
+    const state = makeState(1, 1, [makeCell(0, 0)])
+
+    renderWithGameState(<Card card={card} />, state)
+
+    expect(screen.getByTestId('card').style.background).toBe(
+      'linear-gradient(right, rgb(168, 85, 247) 50%, rgb(59, 130, 246) 50%)',
+    )
+  })
+})

@@ -31,8 +31,16 @@ interface GameState {
   redealsLeft: number;
   placedCards: Record<string, Card>;
   status: 'playing' | 'won' | 'lost';
+  selectedCardId: string | null;
 }
 
 type Move = { type: 'place'; cardId: string; row: number; col: number }
 
-export type { Card, Cell, Color, GameState, Move, Side };
+type GameAction = 
+  | { type: 'selectCard'; cardId: string }
+  | { type: 'deselectCard' }
+  | { type: 'placeCard'; move: Move }
+  | { type: 'resetGame' }
+  | { type: 'shuffleDeck' }
+
+export type { Card, Cell, Color, GameAction, GameState, Move, Side };

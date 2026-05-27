@@ -1,6 +1,104 @@
-import { describe, expect, it } from 'vitest'
-import { applyMove } from './movement'
+import { describe, expect, it, vi } from 'vitest'
+import { applyMove, deselectCard, selectCard, shuffleDeck } from './movement'
 import { makeCard, makeCell, makeState } from '@/test/utils/factories'
+
+describe('selectCard', () => {
+  it('sets selectedCardId when the card is in hand', () => {
+    const card = makeCard('c1', 'red', 'blue')
+    const state = makeState(1, 1, [makeCell(0, 0)], { hand: [card] })
+
+    const next = selectCard(state, 'c1')
+
+    expect(next.selectedCardId).toBe('c1')
+  })
+
+  it('replaces an existing selection', () => {
+    const c1 = makeCard('c1', 'red', 'blue')
+    const c2 = makeCard('c2', 'green', 'yellow')
+    const state = makeState(1, 1, [makeCell(0, 0)], {
+      hand: [c1, c2],
+    })
+
+    const next = selectCard(selectCard(state, 'c1'), 'c2')
+
+    expect(next.selectedCardId).toBe('c2')
+  })
+
+  it('does not mutate the input state', () => {
+    const card = makeCard('c1', 'red', 'blue')
+    const state = makeState(1, 1, [makeCell(0, 0)], { hand: [card] })
+
+    const next = selectCard(state, 'c1')
+
+    expect(next).not.toBe(state)
+    expect(state.selectedCardId).toBeNull()
+  })
+
+  it('throws when the card is not in hand', () => {
+    const card = makeCard('c1', 'red', 'blue')
+    const state = makeState(1, 1, [makeCell(0, 0)], { deck: [card] })
+
+    expect(() => selectCard(state, 'c1')).toThrow('Card not found')
+  })
+})
+
+describe('deselectCard', () => {
+  it('clears selectedCardId', () => {
+    const card = makeCard('c1', 'red', 'blue')
+    const state = selectCard(makeState(1, 1, [makeCell(0, 0)], { hand: [card] }), 'c1')
+
+    const next = deselectCard(state)
+
+    expect(next.selectedCardId).toBeNull()
+  })
+
+  it('does not mutate the input state', () => {
+    const card = makeCard('c1', 'red', 'blue')
+    const state = selectCard(makeState(1, 1, [makeCell(0, 0)], { hand: [card] }), 'c1')
+
+    const next = deselectCard(state)
+
+    expect(next).not.toBe(state)
+    expect(state.selectedCardId).toBe('c1')
+  })
+})
+
+describe('shuffleDeck', () => {
+  it('returns a deck with the same cards', () => {
+    const d1 = makeCard('d1', 'red', 'blue')
+    const d2 = makeCard('d2', 'green', 'yellow')
+    const d3 = makeCard('d3', 'blue', 'green')
+    const state = makeState(1, 1, [makeCell(0, 0)], { deck: [d1, d2, d3] })
+
+    const next = shuffleDeck(state)
+
+    expect(next.deck.map(card => card.id).sort()).toEqual(['d1', 'd2', 'd3'])
+  })
+
+  it('does not mutate the input deck', () => {
+    const d1 = makeCard('d1', 'red', 'blue')
+    const d2 = makeCard('d2', 'green', 'yellow')
+    const state = makeState(1, 1, [makeCell(0, 0)], { deck: [d1, d2] })
+
+    const next = shuffleDeck(state)
+
+    expect(next.deck).not.toBe(state.deck)
+    expect(state.deck.map(card => card.id)).toEqual(['d1', 'd2'])
+  })
+
+  it('reorders the deck using Math.random', () => {
+    const d1 = makeCard('d1', 'red', 'blue')
+    const d2 = makeCard('d2', 'green', 'yellow')
+    const d3 = makeCard('d3', 'blue', 'green')
+    const state = makeState(1, 1, [makeCell(0, 0)], { deck: [d1, d2, d3] })
+    const randomSpy = vi.spyOn(Math, 'random').mockReturnValue(0)
+
+    const next = shuffleDeck(state)
+
+    expect(next.deck.map(card => card.id)).toEqual(['d3', 'd2', 'd1'])
+    randomSpy.mockRestore()
+  })
+})
 
 describe('applyMove', () => {
   it('places a card from hand onto an empty free cell', () => {
