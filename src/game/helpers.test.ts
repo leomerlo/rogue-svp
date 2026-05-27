@@ -8,7 +8,7 @@ import {
   isSolved,
   getCard,
 } from './helpers'
-import { makeCard, makeCell, makeState } from './testUtils'
+import { makeCard, makeCell, makeState } from '@/test/utils/factories'
 
 describe('getCard', () => {
   const placed = makeCard('placed', 'red', 'blue')
