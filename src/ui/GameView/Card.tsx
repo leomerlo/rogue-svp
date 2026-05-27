@@ -15,7 +15,7 @@ const Card = ({ card }: { card: CardType }) => {
   return (
     <div
       data-testid="card"
-      className="h-40 w-40 overflow-hidden rounded border border-gray-300"
+      className="h-full w-full aspect-square overflow-hidden rounded border border-gray-300"
       style={{
         background: `linear-gradient(to bottom right, ${colorA} 50%, ${colorB} 50%)`,
       }}

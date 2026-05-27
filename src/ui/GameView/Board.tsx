@@ -6,7 +6,7 @@ const Board = () => {
   
   return (
     <div
-      className="grid gap-2"
+      className="grid gap-2 w-full"
       data-testid="board"
       style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))` }}
     >

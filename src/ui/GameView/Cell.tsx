@@ -7,7 +7,7 @@ const Cell = ({ cell, card }: { cell: CellType; card: CardType | null }) => {
   return (
     <div
       data-testid="empty-cell"
-      className={`h-40 w-40 ... ${cell.state === 'blocked' ? 'bg-gray-500' : 'bg-white'}`}
+      className={`h-full w-full aspect-square overflow-hidden rounded border border-gray-300 ... ${cell.state === 'blocked' ? 'bg-gray-500' : 'bg-white'}`}
     />
   )
 }
