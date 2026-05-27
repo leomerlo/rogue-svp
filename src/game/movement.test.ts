@@ -105,7 +105,7 @@ describe('applyMove', () => {
     const cells = [makeCell(0, 0), makeCell(0, 1)]
     const state = makeState(1, 2, cells, { hand: [card] })
 
-    const next = applyMove(state, { type: 'place', cardId: 'c1', row: 0, col: 0 })
+    const next = applyMove(state, { cardId: 'c1', row: 0, col: 0 })
 
     expect(next.cells[0]!.cardId).toBe('c1')
     expect(next.placedCards.c1).toBe(card)
@@ -118,7 +118,7 @@ describe('applyMove', () => {
     const cell = makeCell(0, 0)
     const state = makeState(1, 1, [cell], { hand: [card] })
 
-    const next = applyMove(state, { type: 'place', cardId: 'c1', row: 0, col: 0 })
+    const next = applyMove(state, { cardId: 'c1', row: 0, col: 0 })
 
     expect(next).not.toBe(state)
     expect(state.cells[0]!.cardId).toBeNull()
@@ -138,7 +138,7 @@ describe('applyMove', () => {
       deck: [d1, d2],
     })
 
-    const next = applyMove(state, { type: 'place', cardId: 'c1', row: 0, col: 0 })
+    const next = applyMove(state, { cardId: 'c1', row: 0, col: 0 })
 
     expect(next.hand.map(c => c.id)).toEqual(['c2', 'c3', 'd1'])
     expect(next.deck.map(c => c.id)).toEqual(['d2'])
@@ -154,7 +154,7 @@ describe('applyMove', () => {
       deck: [d1],
     })
 
-    const next = applyMove(state, { type: 'place', cardId: 'c1', row: 0, col: 0 })
+    const next = applyMove(state, { cardId: 'c1', row: 0, col: 0 })
 
     expect(next.hand.map(c => c.id)).toEqual(['c2', 'd1'])
     expect(next.deck).toEqual([])
@@ -172,7 +172,7 @@ describe('applyMove', () => {
       placedCards: { a },
     })
 
-    const next = applyMove(state, { type: 'place', cardId: 'b', row: 0, col: 1 })
+    const next = applyMove(state, { cardId: 'b', row: 0, col: 1 })
 
     expect(next.status).toBe('won')
   })
@@ -189,7 +189,7 @@ describe('applyMove', () => {
       placedCards: { a },
     })
 
-    const next = applyMove(state, { type: 'place', cardId: 'b', row: 0, col: 1 })
+    const next = applyMove(state, { cardId: 'b', row: 0, col: 1 })
 
     expect(next.status).toBe('lost')
   })
@@ -208,7 +208,7 @@ describe('applyMove', () => {
       placedCards: { a },
     })
 
-    const next = applyMove(state, { type: 'place', cardId: 'b', row: 0, col: 1 })
+    const next = applyMove(state, { cardId: 'b', row: 0, col: 1 })
 
     expect(next.status).toBe('won')
   })
@@ -223,7 +223,7 @@ describe('applyMove', () => {
     })
 
     expect(() =>
-      applyMove(state, { type: 'place', cardId: 'c1', row: 0, col: 0 }),
+      applyMove(state, { cardId: 'c1', row: 0, col: 0 }),
     ).toThrow('Cell already occupied')
   })
 
@@ -233,7 +233,7 @@ describe('applyMove', () => {
     const state = makeState(1, 1, [cell], { hand: [card] })
 
     expect(() =>
-      applyMove(state, { type: 'place', cardId: 'c1', row: 0, col: 0 }),
+      applyMove(state, { cardId: 'c1', row: 0, col: 0 }),
     ).toThrow('Cell is blocked')
   })
 
@@ -243,7 +243,7 @@ describe('applyMove', () => {
     const state = makeState(1, 1, [cell], { deck: [card] })
 
     expect(() =>
-      applyMove(state, { type: 'place', cardId: 'c1', row: 0, col: 0 }),
+      applyMove(state, { cardId: 'c1', row: 0, col: 0 }),
     ).toThrow('Card not found')
   })
 
@@ -253,7 +253,7 @@ describe('applyMove', () => {
     const state = makeState(1, 1, [cell], { hand: [card] })
 
     expect(() =>
-      applyMove(state, { type: 'place', cardId: 'c1', row: 1, col: 0 }),
+      applyMove(state, { cardId: 'c1', row: 1, col: 0 }),
     ).toThrow('Invalid move')
   })
 })

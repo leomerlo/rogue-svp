@@ -9,6 +9,19 @@ function setCellCard(cells: GameState['cells'], indexToUpdate: number, cardId: s
   ))
 }
 
+function swapCellCards(
+  cells: GameState['cells'],
+  indexA: number,
+  cardIdA: string | null,
+  indexB: number,
+  cardIdB: string | null,
+): GameState['cells'] {
+  const next = [...cells]
+  next[indexA] = { ...cells[indexA]!, cardId: cardIdA }
+  next[indexB] = { ...cells[indexB]!, cardId: cardIdB }
+  return next
+}
+
 function drawCards(state: GameState): GameState {
   const hand = [...state.hand]
   const deck = [...state.deck]
@@ -107,11 +120,7 @@ function swapCard(state: GameState, move: Swap): GameState {
     throw new Error('Source cell is empty')
   }
   
-  const cells = setCellCard(
-    setCellCard(state.cells, cellFromIndex, cardTo),
-    cellToIndex,
-    cardFrom,
-  )
+  const cells = swapCellCards(state.cells, cellFromIndex, cardTo, cellToIndex, cardFrom)
 
   return { ...state, cells, selectedCardId: null }
 }

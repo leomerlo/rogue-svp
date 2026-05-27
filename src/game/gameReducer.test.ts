@@ -35,7 +35,7 @@ describe('gameReducer', () => {
 
     const next = gameReducer(state, {
       type: 'placeCard',
-      move: { type: 'place', cardId: 'c1', row: 0, col: 0 },
+      move: { cardId: 'c1', row: 0, col: 0 },
     })
 
     expect(next.cells[0]!.cardId).toBe('c1')
