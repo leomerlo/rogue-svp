@@ -63,8 +63,8 @@ describe('gameReducer', () => {
 
     const next = gameReducer(state, { type: 'reDeal' })
 
-    expect(next.hand.map(card => card.id)).toEqual(['h3', 'h2', 'h1'])
-    expect(next.deck.map(card => card.id)).toEqual(['d2', 'd1'])
+    expect(next.hand.map(card => card.id)).toEqual(['d2', 'h1', 'h2'])
+    expect(next.deck.map(card => card.id)).toEqual(['h3', 'd1'])
     expect(next.redealsLeft).toBe(3)
     randomSpy.mockRestore()
   })

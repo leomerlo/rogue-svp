@@ -43,7 +43,6 @@ type GameAction =
   | { type: 'placeCard'; move: Place }
   | { type: 'swapCard'; move: Swap }
   | { type: 'resetGame' }
-  | { type: 'shuffleDeck' }
   | { type: 'reDeal' }
 
 type ActionOf<T extends GameAction['type']> = Extract<GameAction, { type: T }>

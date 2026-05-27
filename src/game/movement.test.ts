@@ -1,5 +1,4 @@
 import { describe, expect, it, vi } from 'vitest'
-import { shuffleDeck } from '@/game/helpers'
 import { applyMove, deselectCard, reDealCards, selectCard, swapCard } from '@/game/movement'
 import { makeCard, makeCell, makeState } from '@/test/utils/factories'
 
@@ -63,42 +62,6 @@ describe('deselectCard', () => {
   })
 })
 
-describe('shuffleDeck', () => {
-  it('returns a deck with the same cards', () => {
-    const d1 = makeCard('d1', 'red', 'blue')
-    const d2 = makeCard('d2', 'green', 'yellow')
-    const d3 = makeCard('d3', 'blue', 'green')
-    const deck = [d1, d2, d3]
-
-    const next = shuffleDeck(deck)
-
-    expect(next.map(card => card.id).sort()).toEqual(['d1', 'd2', 'd3'])
-  })
-
-  it('does not mutate the input deck', () => {
-    const d1 = makeCard('d1', 'red', 'blue')
-    const d2 = makeCard('d2', 'green', 'yellow')
-    const deck = [d1, d2]
-
-    const next = shuffleDeck(deck)
-
-    expect(next).not.toBe(deck)
-    expect(deck.map(card => card.id)).toEqual(['d1', 'd2'])
-  })
-
-  it('reorders the deck using Math.random', () => {
-    const d1 = makeCard('d1', 'red', 'blue')
-    const d2 = makeCard('d2', 'green', 'yellow')
-    const d3 = makeCard('d3', 'blue', 'green')
-    const randomSpy = vi.spyOn(Math, 'random').mockReturnValue(0)
-
-    const next = shuffleDeck([d1, d2, d3])
-
-    expect(next.map(card => card.id)).toEqual(['d3', 'd2', 'd1'])
-    randomSpy.mockRestore()
-  })
-})
-
 describe('reDealCards', () => {
   it('does nothing when redealsLeft is 0', () => {
     const hand = [makeCard('h1', 'red', 'blue')]
@@ -148,8 +111,9 @@ describe('reDealCards', () => {
 
     const next = reDealCards(state)
 
-    expect(next.hand.map(card => card.id)).toEqual(['h3', 'h2', 'h1'])
-    expect(next.deck.map(card => card.id)).toEqual(['d2', 'd1'])
+    // pool [d1,d2,h1,h2,h3] → Fisher-Yates (random=0) → [d2,h1,h2,h3,d1], then draw 3
+    expect(next.hand.map(card => card.id)).toEqual(['d2', 'h1', 'h2'])
+    expect(next.deck.map(card => card.id)).toEqual(['h3', 'd1'])
     randomSpy.mockRestore()
   })
 
