@@ -1,4 +1,6 @@
-import { getCard, getCellIndex, isSolved, isTableFull } from '@/game/helpers'
+import { getCard, getCellIndex, isSolved, isTableFull, shuffleDeck } from '@/game/helpers'
+
+const HAND_SIZE = 3
 import type { GameState, Place, Swap } from '@/game/types'
 
 function setCellCard(cells: GameState['cells'], indexToUpdate: number, cardId: string | null): GameState['cells'] {
@@ -26,15 +28,11 @@ function drawCards(state: GameState): GameState {
   const hand = [...state.hand]
   const deck = [...state.deck]
 
-  while (hand.length < 3 && deck.length > 0) {
+  while (hand.length < HAND_SIZE && deck.length > 0) {
     hand.push(deck.shift()!)
   }
 
   return { ...state, hand, deck }
-}
-
-function shuffleDeck(state: GameState): GameState {
-  return { ...state, deck: [...state.deck].sort(() => Math.random() - 0.5) }
 }
 
 function selectCard(state: GameState, cardId: string): GameState {
@@ -125,10 +123,25 @@ function swapCard(state: GameState, move: Swap): GameState {
   return { ...state, cells, selectedCardId: null }
 }
 
+function reDealCards(state: GameState): GameState {
+  if (state.redealsLeft === 0) return state;
+
+  const shuffledDeck = shuffleDeck(state.deck.concat(state.hand));
+  
+  const newState: GameState = {
+    ...state,
+    hand: [],
+    deck: shuffledDeck,
+    redealsLeft: state.redealsLeft - 1,
+  }
+
+  return drawCards(newState)
+}
+
 export {
   applyMove,
   deselectCard,
   selectCard,
-  shuffleDeck,
-  swapCard
+  swapCard,
+  reDealCards,
 }

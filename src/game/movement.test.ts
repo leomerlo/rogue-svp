@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { applyMove, deselectCard, selectCard, shuffleDeck, swapCard } from '@/game/movement'
+import { applyMove, deselectCard, reDealCards, selectCard, swapCard } from '@/game/movement'
 import { makeCard, makeCell, makeState } from '@/test/utils/factories'
 
 describe('selectCard', () => {
@@ -62,40 +62,104 @@ describe('deselectCard', () => {
   })
 })
 
-describe('shuffleDeck', () => {
-  it('returns a deck with the same cards', () => {
-    const d1 = makeCard('d1', 'red', 'blue')
-    const d2 = makeCard('d2', 'green', 'yellow')
-    const d3 = makeCard('d3', 'blue', 'green')
-    const state = makeState(1, 1, [makeCell(0, 0)], { deck: [d1, d2, d3] })
+describe('reDealCards', () => {
+  it('does nothing when redealsLeft is 0', () => {
+    const hand = [makeCard('h1', 'red', 'blue')]
+    const state = { ...makeState(1, 1, [makeCell(0, 0)], { hand }), redealsLeft: 0 }
 
-    const next = shuffleDeck(state)
+    const next = reDealCards(state)
 
-    expect(next.deck.map(card => card.id).sort()).toEqual(['d1', 'd2', 'd3'])
+    expect(next).toBe(state)
   })
 
-  it('does not mutate the input deck', () => {
-    const d1 = makeCard('d1', 'red', 'blue')
-    const d2 = makeCard('d2', 'green', 'yellow')
-    const state = makeState(1, 1, [makeCell(0, 0)], { deck: [d1, d2] })
+  it('decrements redealsLeft', () => {
+    const hand = [
+      makeCard('h1', 'red', 'blue'),
+      makeCard('h2', 'green', 'yellow'),
+      makeCard('h3', 'blue', 'green'),
+    ]
+    const state = { ...makeState(1, 1, [makeCell(0, 0)], { hand }), redealsLeft: 2 }
 
-    const next = shuffleDeck(state)
+    const next = reDealCards(state)
 
-    expect(next.deck).not.toBe(state.deck)
-    expect(state.deck.map(card => card.id)).toEqual(['d1', 'd2'])
+    expect(next.redealsLeft).toBe(1)
   })
 
-  it('reorders the deck using Math.random', () => {
-    const d1 = makeCard('d1', 'red', 'blue')
-    const d2 = makeCard('d2', 'green', 'yellow')
-    const d3 = makeCard('d3', 'blue', 'green')
-    const state = makeState(1, 1, [makeCell(0, 0)], { deck: [d1, d2, d3] })
+  it('keeps every unplaced card in hand or deck', () => {
+    const hand = [
+      makeCard('h1', 'red', 'blue'),
+      makeCard('h2', 'green', 'yellow'),
+    ]
+    const deck = [makeCard('d1', 'blue', 'green'), makeCard('d2', 'yellow', 'red')]
+    const state = makeState(1, 1, [makeCell(0, 0)], { hand, deck })
+
+    const next = reDealCards(state)
+
+    const before = [...hand, ...deck].map(card => card.id).sort()
+    const after = [...next.hand, ...next.deck].map(card => card.id).sort()
+    expect(after).toEqual(before)
+  })
+
+  it('returns hand cards to the pool and draws 3 after shuffling', () => {
+    const h1 = makeCard('h1', 'red', 'blue')
+    const h2 = makeCard('h2', 'green', 'yellow')
+    const h3 = makeCard('h3', 'blue', 'green')
+    const d1 = makeCard('d1', 'yellow', 'red')
+    const d2 = makeCard('d2', 'red', 'green')
+    const state = makeState(1, 1, [makeCell(0, 0)], { hand: [h1, h2, h3], deck: [d1, d2] })
     const randomSpy = vi.spyOn(Math, 'random').mockReturnValue(0)
 
-    const next = shuffleDeck(state)
+    const next = reDealCards(state)
 
-    expect(next.deck.map(card => card.id)).toEqual(['d3', 'd2', 'd1'])
+    // pool [d1,d2,h1,h2,h3] → Fisher-Yates (random=0) → [d2,h1,h2,h3,d1], then draw 3
+    expect(next.hand.map(card => card.id)).toEqual(['d2', 'h1', 'h2'])
+    expect(next.deck.map(card => card.id)).toEqual(['h3', 'd1'])
     randomSpy.mockRestore()
+  })
+
+  it('draws fewer than 3 cards when the pool is smaller', () => {
+    const h1 = makeCard('h1', 'red', 'blue')
+    const h2 = makeCard('h2', 'green', 'yellow')
+    const state = makeState(1, 1, [makeCell(0, 0)], { hand: [h1], deck: [h2] })
+
+    const next = reDealCards(state)
+
+    expect(next.hand).toHaveLength(2)
+    expect(next.deck).toEqual([])
+  })
+
+  it('does not mutate the input state', () => {
+    const hand = [
+      makeCard('h1', 'red', 'blue'),
+      makeCard('h2', 'green', 'yellow'),
+      makeCard('h3', 'blue', 'green'),
+    ]
+    const deck = [makeCard('d1', 'yellow', 'red')]
+    const state = makeState(1, 1, [makeCell(0, 0)], { hand, deck })
+
+    const next = reDealCards(state)
+
+    expect(next).not.toBe(state)
+    expect(state.hand.map(card => card.id)).toEqual(['h1', 'h2', 'h3'])
+    expect(state.deck.map(card => card.id)).toEqual(['d1'])
+    expect(state.redealsLeft).toBe(4)
+  })
+
+  it('does not change placed cards on the board', () => {
+    const placed = makeCard('a', 'red', 'green')
+    const hand = [
+      makeCard('h1', 'red', 'blue'),
+      makeCard('h2', 'green', 'yellow'),
+      makeCard('h3', 'blue', 'green'),
+    ]
+    const deck = [makeCard('d1', 'yellow', 'red')]
+    const cells = [makeCell(0, 0, { cardId: 'a' }), makeCell(0, 1)]
+    const state = makeState(1, 2, cells, { hand, deck, placedCards: { a: placed } })
+
+    const next = reDealCards(state)
+
+    expect(next.cells[0]!.cardId).toBe('a')
+    expect(next.placedCards).toEqual({ a: placed })
   })
 })
 

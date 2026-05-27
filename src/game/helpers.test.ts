@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import {
   edgeColor,
   touchingSides,
@@ -12,6 +12,7 @@ import {
   isCardInDeck,
   isCardInHand,
   isCardInPlacedCards,
+  shuffleDeck,
 } from '@/game/helpers'
 import { makeCard, makeCell, makeState } from '@/test/utils/factories'
 
@@ -275,5 +276,52 @@ describe('isSolved', () => {
     const gameState = makeState(1, 2, cells, { placedCards: { a } })
 
     expect(isSolved(gameState)).toBe(false)
+  })
+})
+
+describe('shuffleDeck', () => {
+  it('returns a permutation of the input cards', () => {
+    const d1 = makeCard('d1', 'red', 'blue')
+    const d2 = makeCard('d2', 'green', 'yellow')
+    const d3 = makeCard('d3', 'blue', 'green')
+
+    const next = shuffleDeck([d1, d2, d3])
+
+    expect(next.map(card => card.id).sort()).toEqual(['d1', 'd2', 'd3'])
+  })
+
+  it('does not mutate the input array', () => {
+    const d1 = makeCard('d1', 'red', 'blue')
+    const d2 = makeCard('d2', 'green', 'yellow')
+    const deck = [d1, d2]
+
+    const next = shuffleDeck(deck)
+
+    expect(next).not.toBe(deck)
+    expect(deck.map(card => card.id)).toEqual(['d1', 'd2'])
+  })
+
+  it('returns an empty array unchanged', () => {
+    expect(shuffleDeck([])).toEqual([])
+  })
+
+  it('returns a single-card deck unchanged', () => {
+    const d1 = makeCard('d1', 'red', 'blue')
+
+    expect(shuffleDeck([d1])).toEqual([d1])
+  })
+
+  it('shuffles with Fisher-Yates using Math.random', () => {
+    const d1 = makeCard('d1', 'red', 'blue')
+    const d2 = makeCard('d2', 'green', 'yellow')
+    const d3 = makeCard('d3', 'blue', 'green')
+    const randomSpy = vi.spyOn(Math, 'random').mockReturnValue(0)
+
+    const next = shuffleDeck([d1, d2, d3])
+
+    // random=0 always picks j=0: swap tail with index 0 each pass
+    expect(next.map(card => card.id)).toEqual(['d2', 'd3', 'd1'])
+    expect(randomSpy).toHaveBeenCalledTimes(2)
+    randomSpy.mockRestore()
   })
 })
