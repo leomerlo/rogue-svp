@@ -1,4 +1,4 @@
-import { getCellIndex, isSolved, isTableFull } from './helpers';
+import { getCard, getCellIndex,  isSolved, isTableFull } from './helpers';
 import type { GameState, Move } from './types';
 
 function drawCards(state: GameState): GameState {
@@ -17,7 +17,7 @@ function shuffleDeck(state: GameState): GameState {
 }
 
 function selectCard(state: GameState, cardId: string): GameState {
-  if (state.hand.find(c => c.id === cardId) === undefined) {
+  if (getCard(state, cardId) === null) {
     throw new Error('Card not found');
   }
   return { ...state, selectedCardId: cardId };
@@ -52,8 +52,10 @@ function applyMove(state: GameState, move: Move): GameState {
     throw new Error('Card not found');
   }
 
-  const cells = state.cells.map((cell, index) =>
-    index === cellIndex ? { ...cell, cardId: move.cardId } : cell,
+  const cells = state.cells.map(
+    (cell, index) => index === cellIndex ? {
+      ...cell, cardId: move.cardId
+    } : cell
   );
   const hand = state.hand.filter(c => c.id !== move.cardId);
   const placedCards = { ...state.placedCards, [move.cardId]: card };

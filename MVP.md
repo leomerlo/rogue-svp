@@ -34,12 +34,13 @@ El diseño completo describe un juego grande. El MVP **deliberadamente no lo con
   - Sentar una carta de la mano en un asiento.
   - Hacer *swap* entre dos cartas sentadas, o mover una sentada a un asiento libre (ilimitado).
   - **Re-deal**: descartar las 3 cartas de la mano y robar 3 nuevas (límite de 4 por fiesta).
-- Cálculo de "felicidad" por invitado y resaltado visual de vecinos en conflicto.
+- Cálculo de felicidad por invitado (`isHappy`) y **resaltado visual a nivel carta** en la mesa: feliz (p. ej. borde verde) o infeliz (p. ej. borde rojo / sin resaltado positivo). Se evalúa en tiempo real al colocar o mover cartas. **No** hay indicadores por borde individual entre celdas.
 - Detección de victoria: mesa llena y todos los invitados felices.
 - Estado de derrota: mesa llena pero algún invitado infeliz.
 
 ### 2.2 Explícitamente NO incluido
 
+- Resaltado visual **por borde** entre celdas (solo validación completa de la carta sentada).
 - Generación procedural de mesas (Milestone 2).
 - Múltiples mesas / estructura de run / relics (Milestone 3).
 - Cualquier texto narrativo, eventos, arquetipos (Milestone 4).
@@ -143,7 +144,7 @@ Cada carta vive en exactamente una zona a la vez. `deck` y `hand` guardan los ob
 - `neighborsOf(cell, state)` → hasta 4 celdas libres adyacentes en la grilla.
 - `edgeColor(card, side)` → color del borde `top|bottom|left|right` según la convención A/B.
 - `getCard(state, id)` → busca en `placedCards`, luego `hand`, luego `deck`.
-- `isHappy(cell, state)` → todos los bordes compartidos con vecinos sentados coinciden (o uno es wild).
+- `isHappy(cell, state)` → cada asiento adyacente (no bloqueado) está ocupado y cada borde compartido coincide (o uno es wild).
 
 > El modelo deja "huecos" baratos (`fixedColor`) para no rehacerlo cuando crezca, pero no implementa nada más allá del MVP.
 
@@ -153,7 +154,7 @@ Cada carta vive en exactamente una zona a la vez. `deck` y `hand` guardan los ob
 
 - [ ] Puedo abrir la app y ver una mesa con asientos y mi mano.
 - [ ] Puedo sentar, swapear y descartar respetando los límites.
-- [ ] El juego marca visualmente quién está feliz y quién no.
+- [ ] El juego marca visualmente qué cartas sentadas están felices y cuáles no (indicador por carta, no por borde).
 - [ ] El juego detecta victoria cuando todos están felices.
 - [ ] La lógica del puzzle tiene tests unitarios que pasan.
 - [ ] La mesa de ejemplo es resoluble y la puedo resolver a mano.

@@ -2,14 +2,10 @@ type Color = 'red' | 'blue' | 'green' | 'yellow' | 'wild';
 
 type Side = 'top' | 'bottom' | 'left' | 'right';
 
-// La carta tiene dos colores. Por convención fija, colorA cubre los bordes
-// superior+izquierdo de la carta y colorB los bordes inferior+derecho.
-// El matching entre dos cartas adyacentes en la grilla compara el borde
-// específico que se tocan (no las "mitades" de forma abstracta).
 interface Card {
   id: string;
-  colorA: Color;   // cubre bordes top + left
-  colorB: Color;   // cubre bordes bottom + right
+  colorA: Color; // covers top + left edges
+  colorB: Color; // covers bottom + right edges
 }
 
 type CellState = 'free' | 'blocked';

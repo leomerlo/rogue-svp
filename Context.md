@@ -26,7 +26,7 @@
 
 Juego de cartas tipo puzzle inspirado en **RSVP: The Dinner Party Game** (Pop & Company, ~2006), combinado con estructura roguelike (*Slay the Spire* / *Balatro*) y elecciones de ruta narrativa (*Absolum*).
 
-El jugador anfitriona fiestas donde debe sentar invitados alrededor de mesas; cada invitado es una carta con dos colores y solo es feliz si sus vecinos coinciden en color.
+El jugador anfitriona fiestas donde debe sentar invitados alrededor de mesas; cada invitado es una carta con dos colores y solo es feliz si **todos** los asientos adyacentes (no bloqueados) están ocupados y los bordes compartidos coinciden en color.
 
 La capa narrativa cuenta una **saga generacional** de comedia/drama al estilo *Pilares de la Tierra*, con tono más liviano (Wodehouse, *Amélie*, *Gosford Park*). Cada run cubre **tres generaciones** de una familia/pueblo.
 
@@ -40,7 +40,7 @@ La capa narrativa cuenta una **saga generacional** de comedia/drama al estilo *P
 
 - Cada carta = un invitado, **dividida diagonalmente en dos colores (mitad A / mitad B)**. Cada color cubre **dos de los cuatro bordes cardinales** de la carta (por convención fija: A en superior+izquierdo, B en inferior+derecho — la diagonal exacta es detalle de arte). Ver ADR-0001.
 - La mesa es una **grilla MxN de celdas**. Cada celda es **libre** (un asiento) o **bloqueada** (parte del layout). Dos asientos son adyacentes si comparten un borde cardinal en la grilla (top/bottom/left/right).
-- Un invitado está "feliz" si para **cada vecino existente**, el borde compartido tiene colores que coinciden (o uno es wild).
+- Un invitado está "feliz" si **cada asiento adyacente** (celda libre ortogonal, no bloqueada) **tiene carta** y, en ese borde compartido, los colores coinciden (o uno es wild). Un asiento vacío adyacente implica infeliz.
 - Cartas comodín (*wild*) cuentan como cualquier color en ambas mitades.
 - **Objetivo de cada fiesta:** todos los invitados felices al terminar de sentar.
 
