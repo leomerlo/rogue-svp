@@ -1,5 +1,5 @@
 import { describe, expect, it, afterEach } from 'vitest'
-import { cleanup, screen } from '@testing-library/react'
+import { cleanup, fireEvent, screen } from '@testing-library/react'
 import { makeCard, makeCell, makeState } from '@/test/utils/factories'
 import { renderWithGameState } from '@/test/utils/renderWithGameState'
 import Cell from './Cell'
@@ -74,5 +74,30 @@ describe('Cell', () => {
     renderWithGameState(<Cell cell={cells[0]!} card={card} />, state)
 
     expect(screen.getByTestId('card')).toHaveClass('border-red-500')
+  })
+
+  it('shows selected border when the cell card is selected', () => {
+    const card = makeCard('c1', 'red', 'blue')
+    const cell = makeCell(0, 0, { cardId: 'c1' })
+    const state = makeState(1, 1, [cell], { placedCards: { c1: card }, selectedCardId: 'c1' })
+
+    renderWithGameState(<Cell cell={cell} card={card} />, state)
+
+    expect(screen.getByTestId('card')).toHaveClass('border-blue-500')
+  })
+
+  it('toggles selected state when clicking the same placed card', () => {
+    const card = makeCard('c1', 'red', 'blue')
+    const cell = makeCell(0, 0, { cardId: 'c1' })
+    const state = makeState(1, 1, [cell], { placedCards: { c1: card } })
+
+    renderWithGameState(<Cell cell={cell} card={card} />, state)
+
+    const cardElement = screen.getByTestId('card')
+    fireEvent.click(cardElement)
+    expect(cardElement).toHaveClass('border-blue-500')
+
+    fireEvent.click(cardElement)
+    expect(cardElement).not.toHaveClass('border-blue-500')
   })
 })

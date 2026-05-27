@@ -30,13 +30,27 @@ interface GameState {
   selectedCardId: string | null;
 }
 
-type Move = { type: 'place'; cardId: string; row: number; col: number }
+type Place = { cardId: string; row: number; col: number }
+
+type Swap = {
+  from: { row: number; col: number }
+  to: { row: number; col: number }
+}
 
 type GameAction = 
   | { type: 'selectCard'; cardId: string }
   | { type: 'deselectCard' }
-  | { type: 'placeCard'; move: Move }
+  | { type: 'placeCard'; move: Place }
+  | { type: 'swapCard'; move: Swap }
   | { type: 'resetGame' }
   | { type: 'shuffleDeck' }
 
-export type { Card, Cell, Color, GameAction, GameState, Move, Side };
+type ActionOf<T extends GameAction['type']> = Extract<GameAction, { type: T }>
+
+type InteractionAction =
+  | ActionOf<'selectCard'>
+  | ActionOf<'deselectCard'>
+  | ActionOf<'placeCard'>
+  | ActionOf<'swapCard'>
+
+export type { ActionOf, Card, Cell, Color, GameAction, GameState, InteractionAction, Place, Side, Swap };

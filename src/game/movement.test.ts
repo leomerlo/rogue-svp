@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { applyMove, deselectCard, selectCard, shuffleDeck } from './movement'
+import { applyMove, deselectCard, selectCard, shuffleDeck, swapCard } from '@/game/movement'
 import { makeCard, makeCell, makeState } from '@/test/utils/factories'
 
 describe('selectCard', () => {
@@ -255,5 +255,61 @@ describe('applyMove', () => {
     expect(() =>
       applyMove(state, { type: 'place', cardId: 'c1', row: 1, col: 0 }),
     ).toThrow('Invalid move')
+  })
+})
+
+describe('swapCard', () => {
+  it('moves a placed card into an empty cell', () => {
+    const a = makeCard('a', 'red', 'green')
+    const cells = [makeCell(0, 0, { cardId: 'a' }), makeCell(0, 1)]
+    const state = makeState(1, 2, cells, { placedCards: { a }, selectedCardId: 'a' })
+
+    const next = swapCard(state, {
+      from: { row: 0, col: 0 },
+      to: { row: 0, col: 1 },
+    })
+
+    expect(next.cells[0]!.cardId).toBeNull()
+    expect(next.cells[1]!.cardId).toBe('a')
+    expect(next.selectedCardId).toBeNull()
+  })
+
+  it('swaps two placed cards', () => {
+    const a = makeCard('a', 'red', 'green')
+    const b = makeCard('b', 'blue', 'yellow')
+    const cells = [makeCell(0, 0, { cardId: 'a' }), makeCell(0, 1, { cardId: 'b' })]
+    const state = makeState(1, 2, cells, { placedCards: { a, b }, selectedCardId: 'a' })
+
+    const next = swapCard(state, {
+      from: { row: 0, col: 0 },
+      to: { row: 0, col: 1 },
+    })
+
+    expect(next.cells[0]!.cardId).toBe('b')
+    expect(next.cells[1]!.cardId).toBe('a')
+  })
+
+  it('does not swap when game is not playing', () => {
+    const a = makeCard('a', 'red', 'green')
+    const b = makeCard('b', 'blue', 'yellow')
+    const cells = [makeCell(0, 0, { cardId: 'a' }), makeCell(0, 1, { cardId: 'b' })]
+    const wonState = makeState(1, 2, cells, { placedCards: { a, b }, status: 'won' })
+    const lostState = makeState(1, 2, cells, { placedCards: { a, b }, status: 'lost' })
+
+    expect(swapCard(wonState, { from: { row: 0, col: 0 }, to: { row: 0, col: 1 } })).toBe(wonState)
+    expect(swapCard(lostState, { from: { row: 0, col: 0 }, to: { row: 0, col: 1 } })).toBe(lostState)
+  })
+
+  it('throws when the source cell is empty', () => {
+    const a = makeCard('a', 'red', 'green')
+    const cells = [makeCell(0, 0), makeCell(0, 1, { cardId: 'a' })]
+    const state = makeState(1, 2, cells, { placedCards: { a } })
+
+    expect(() =>
+      swapCard(state, {
+        from: { row: 0, col: 0 },
+        to: { row: 0, col: 1 },
+      }),
+    ).toThrow('Source cell is empty')
   })
 })

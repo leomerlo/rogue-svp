@@ -32,7 +32,7 @@ El diseño completo describe un juego grande. El MVP **deliberadamente no lo con
 - **Mano de 3 cartas visibles** (top del mazo); al sentar una, se roba otra automáticamente.
 - Interacción de jugador:
   - Sentar una carta de la mano en un asiento.
-  - Hacer *swap* entre dos cartas sentadas, o mover una sentada a un asiento libre (ilimitado).
+  - Hacer *swap* entre dos cartas sentadas, o mover una sentada a un asiento libre (ilimitado mientras la partida siga en `playing`).
   - **Re-deal**: descartar las 3 cartas de la mano y robar 3 nuevas (límite de 4 por fiesta).
 - Cálculo de felicidad por invitado (`isHappy`) y **resaltado visual a nivel carta** en la mesa: feliz (p. ej. borde verde) o infeliz (p. ej. borde rojo / sin resaltado positivo). Se evalúa en tiempo real al colocar o mover cartas. **No** hay indicadores por borde individual entre celdas.
 - Detección de victoria: mesa llena y todos los invitados felices.
