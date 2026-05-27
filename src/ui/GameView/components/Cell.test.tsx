@@ -37,4 +37,42 @@ describe('Cell', () => {
 
     expect(screen.getByTestId('empty-cell')).toHaveClass('bg-gray-500')
   })
+
+  it('shows a happy border when the placed card satisfies isHappy', () => {
+    const left = makeCard('left', 'red', 'green')
+    const right = makeCard('right', 'green', 'blue')
+    const cells = [
+      makeCell(0, 0, { cardId: 'left' }),
+      makeCell(0, 1, { cardId: 'right' }),
+    ]
+    const state = makeState(1, 2, cells, { placedCards: { left, right } })
+
+    renderWithGameState(<Cell cell={cells[0]!} card={left} />, state)
+
+    expect(screen.getByTestId('card')).toHaveClass('border-green-500')
+  })
+
+  it('shows an unhappy border when adjacent edges do not match', () => {
+    const left = makeCard('left', 'red', 'green')
+    const right = makeCard('right', 'yellow', 'blue')
+    const cells = [
+      makeCell(0, 0, { cardId: 'left' }),
+      makeCell(0, 1, { cardId: 'right' }),
+    ]
+    const state = makeState(1, 2, cells, { placedCards: { left, right } })
+
+    renderWithGameState(<Cell cell={cells[0]!} card={left} />, state)
+
+    expect(screen.getByTestId('card')).toHaveClass('border-red-500')
+  })
+
+  it('shows an unhappy border when an adjacent seat is empty', () => {
+    const card = makeCard('c1', 'red', 'green')
+    const cells = [makeCell(0, 0, { cardId: 'c1' }), makeCell(0, 1)]
+    const state = makeState(1, 2, cells, { placedCards: { c1: card } })
+
+    renderWithGameState(<Cell cell={cells[0]!} card={card} />, state)
+
+    expect(screen.getByTestId('card')).toHaveClass('border-red-500')
+  })
 })

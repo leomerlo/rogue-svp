@@ -34,4 +34,15 @@ describe('Hand', () => {
 
     expect(within(screen.getByTestId('hand')).queryAllByTestId('card')).toHaveLength(0)
   })
+
+  it('does not show happiness borders on hand cards', () => {
+    const hand = [makeCard('h1', 'red', 'green')]
+    const state = makeState(1, 1, [makeCell(0, 0)], { hand })
+
+    renderWithGameState(<Hand />, state)
+
+    const card = within(screen.getByTestId('hand')).getByTestId('card')
+    expect(card).not.toHaveClass('border-green-500')
+    expect(card).not.toHaveClass('border-red-500')
+  })
 })

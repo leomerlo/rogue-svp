@@ -34,11 +34,10 @@ describe('selectCard', () => {
     expect(state.selectedCardId).toBeNull()
   })
 
-  it('throws when the card is not in hand', () => {
-    const card = makeCard('c1', 'red', 'blue')
-    const state = makeState(1, 1, [makeCell(0, 0)], { deck: [card] })
+  it('throws when the card is not in hand, deck, or placedCards', () => {
+    const state = makeState(1, 1, [makeCell(0, 0)])
 
-    expect(() => selectCard(state, 'c1')).toThrow('Card not found')
+    expect(() => selectCard(state, 'missing')).toThrow('Card not found')
   })
 })
 

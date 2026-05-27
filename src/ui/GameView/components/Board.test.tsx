@@ -48,4 +48,39 @@ describe('Board', () => {
 
     expect(within(screen.getByTestId('board')).getByTestId('empty-cell')).toBeInTheDocument()
   })
+
+  it('shows happy borders for placed cards that satisfy isHappy', () => {
+    const left = makeCard('left', 'red', 'green')
+    const right = makeCard('right', 'green', 'blue')
+    const state = makeState(1, 2, [
+      makeCell(0, 0, { cardId: 'left' }),
+      makeCell(0, 1, { cardId: 'right' }),
+    ], { placedCards: { left, right } })
+
+    renderWithGameState(<Board />, state)
+
+    const cards = within(screen.getByTestId('board')).getAllByTestId('card')
+    expect(cards).toHaveLength(2)
+    cards.forEach((card) => {
+      expect(card).toHaveClass('border-green-500')
+      expect(card).not.toHaveClass('border-red-500')
+    })
+  })
+
+  it('shows unhappy borders for placed cards that fail isHappy', () => {
+    const left = makeCard('left', 'red', 'green')
+    const right = makeCard('right', 'yellow', 'blue')
+    const state = makeState(1, 2, [
+      makeCell(0, 0, { cardId: 'left' }),
+      makeCell(0, 1, { cardId: 'right' }),
+    ], { placedCards: { left, right } })
+
+    renderWithGameState(<Board />, state)
+
+    const cards = within(screen.getByTestId('board')).getAllByTestId('card')
+    cards.forEach((card) => {
+      expect(card).toHaveClass('border-red-500')
+      expect(card).not.toHaveClass('border-green-500')
+    })
+  })
 })

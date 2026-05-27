@@ -91,11 +91,11 @@ function isHappy(cell: Cell, state: GameState, lookup = buildCellLookup(state)):
   const myCard = getCard(state, cell.cardId);
   if (myCard === null) return false;
 
-  const neighbors = placedNeighborsOf(cell, state, lookup);
+  const neighbors = neighborsOf(cell, state, lookup);
 
   return neighbors.every(neighbor => {
-    const neighborCard = getCard(state, neighbor.cardId!)
-    if (neighborCard === null) return false  // not true — missing card is a failure
+    const neighborCard = neighbor.cardId === null ? null : getCard(state, neighbor.cardId);
+    if (neighborCard === null) return false;
     const { mySide, theirSide } = touchingSides(cell, neighbor)
     return edgesMatch(myCard, mySide, neighborCard, theirSide)
   })
@@ -113,6 +113,8 @@ function isSolved(state: GameState): boolean {
 
 export {
   isHappy,
+  placedNeighborsOf,
+  buildCellLookup,
   neighborsOf,
   edgeColor,
   getCard,

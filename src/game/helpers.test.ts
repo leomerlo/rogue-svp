@@ -177,6 +177,17 @@ describe('isHappy', () => {
     expect(isHappy(cells[1]!, gameState)).toBe(true)
   })
 
+  it('returns false when an adjacent seat is empty', () => {
+    const card = makeCard('c1', 'red', 'green')
+    const cells = [
+      makeCell(0, 0, { cardId: 'c1' }),
+      makeCell(0, 1),
+    ]
+    const gameState = makeState(1, 2, cells, { placedCards: { c1: card } })
+
+    expect(isHappy(cells[0]!, gameState)).toBe(false)
+  })
+
   it('returns false when a card neighbor has a mismatched edge', () => {
     const left = makeCard('left', 'red', 'green')
     const right = makeCard('right', 'yellow', 'blue')
