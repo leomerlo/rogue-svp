@@ -1,4 +1,4 @@
-import { getCard, getCellIndex, isSolved, isTableFull } from '@/game/helpers'
+import { getCard, getCellIndex, isSolved, isTableFull, shuffleDeck } from '@/game/helpers'
 import type { GameState, Place, Swap } from '@/game/types'
 
 function setCellCard(cells: GameState['cells'], indexToUpdate: number, cardId: string | null): GameState['cells'] {
@@ -31,10 +31,6 @@ function drawCards(state: GameState): GameState {
   }
 
   return { ...state, hand, deck }
-}
-
-function shuffleDeck(state: GameState): GameState {
-  return { ...state, deck: [...state.deck].sort(() => Math.random() - 0.5) }
 }
 
 function selectCard(state: GameState, cardId: string): GameState {
@@ -125,10 +121,21 @@ function swapCard(state: GameState, move: Swap): GameState {
   return { ...state, cells, selectedCardId: null }
 }
 
+function reDealCards(state: GameState): GameState {
+  if (state.redealsLeft === 0) return state;
+
+  const shuffledDeck = shuffleDeck([...state.deck, ...state.hand]);
+  const newHand = []
+  while (newHand.length < 3 && shuffledDeck.length > 0) {
+    newHand.push(shuffledDeck.shift()!)
+  }  
+  return { ...state, hand: newHand, deck: shuffledDeck, redealsLeft: state.redealsLeft - 1 }
+}
+
 export {
   applyMove,
   deselectCard,
   selectCard,
-  shuffleDeck,
-  swapCard
+  swapCard,
+  reDealCards,
 }

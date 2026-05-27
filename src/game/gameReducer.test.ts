@@ -51,16 +51,21 @@ describe('gameReducer', () => {
     expect(next).toEqual(createM11PathInitialState())
   })
 
-  it('shuffleDeck reorders the deck', () => {
-    const d1 = makeCard('d1', 'red', 'blue')
-    const d2 = makeCard('d2', 'green', 'yellow')
-    const d3 = makeCard('d3', 'blue', 'green')
-    const state = makeState(1, 1, [makeCell(0, 0)], { deck: [d1, d2, d3] })
+  it('reDeal returns hand cards to the pool and decrements redealsLeft', () => {
+    const hand = [
+      makeCard('h1', 'red', 'blue'),
+      makeCard('h2', 'green', 'yellow'),
+      makeCard('h3', 'blue', 'green'),
+    ]
+    const deck = [makeCard('d1', 'yellow', 'red'), makeCard('d2', 'red', 'green')]
+    const state = { ...makeState(1, 1, [makeCell(0, 0)], { hand, deck }), redealsLeft: 4 }
     const randomSpy = vi.spyOn(Math, 'random').mockReturnValue(0)
 
-    const next = gameReducer(state, { type: 'shuffleDeck' })
+    const next = gameReducer(state, { type: 'reDeal' })
 
-    expect(next.deck.map(card => card.id)).toEqual(['d3', 'd2', 'd1'])
+    expect(next.hand.map(card => card.id)).toEqual(['h3', 'h2', 'h1'])
+    expect(next.deck.map(card => card.id)).toEqual(['d2', 'd1'])
+    expect(next.redealsLeft).toBe(3)
     randomSpy.mockRestore()
   })
 

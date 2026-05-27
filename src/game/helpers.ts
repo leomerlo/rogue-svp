@@ -137,6 +137,10 @@ function isSolved(state: GameState): boolean {
   return state.cells.every(cell => cell.state !== 'free' || isHappy(cell, state, lookup))
 }
 
+function shuffleDeck(deck: Card[]): Card[] {
+  return [...deck].sort(() => Math.random() - 0.5)
+}
+
 export {
   isHappy,
   placedNeighborsOf,
@@ -154,4 +158,5 @@ export {
   isCardInHand,
   isCardInDeck,
   isCardInPlacedCards,
+  shuffleDeck,
 }
