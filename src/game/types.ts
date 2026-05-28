@@ -53,4 +53,17 @@ type InteractionAction =
   | ActionOf<'placeCard'>
   | ActionOf<'swapCard'>
 
-export type { ActionOf, Card, Cell, Color, GameAction, GameState, InteractionAction, Place, RegularColor, Side, Swap };
+interface TopologyParams {
+  rows: number;
+  cols: number;
+  targetFreeSeats?: number;
+  seed?: number;
+}
+
+interface TopologyDef {
+  rows: number;
+  cols: number;
+  cells: Array<{ row: number; col: number; state: CellState }>;
+}
+
+export type { ActionOf, Card, Cell, CellState, Color, GameAction, GameState, InteractionAction, Place, RegularColor, Side, Swap, TopologyDef, TopologyParams };
