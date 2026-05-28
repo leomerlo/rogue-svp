@@ -148,6 +148,7 @@ function shuffleDeck(deck: Card[]): Card[] {
 }
 
 export {
+  cellKey,
   isHappy,
   placedNeighborsOf,
   buildCellLookup,

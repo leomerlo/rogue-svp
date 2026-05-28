@@ -43,7 +43,7 @@ type GameAction =
   | { type: 'swapCard'; move: Swap }
   | { type: 'resetGame' }
   | { type: 'reDeal' }
-  | { type: 'changeLevel'; level: string }
+  | { type: 'changeLevel'; level: 'path' | 'ring' | 'generated' }
 
 type ActionOf<T extends GameAction['type']> = Extract<GameAction, { type: T }>
 
@@ -66,4 +66,14 @@ interface TopologyDef {
   cells: Array<{ row: number; col: number; state: CellState }>;
 }
 
-export type { ActionOf, Card, Cell, CellState, Color, GameAction, GameState, InteractionAction, Place, RegularColor, Side, Swap, TopologyDef, TopologyParams };
+interface DeckParams {
+  seed?: number;
+  bufferSize?: number;
+  wildCount?: number;
+}
+
+interface DeckDef {
+  cards: Card[];
+}
+
+export type { ActionOf, Card, Cell, CellState, Color, DeckDef, DeckParams, GameAction, GameState, InteractionAction, Place, RegularColor, Side, Swap, TopologyDef, TopologyParams };

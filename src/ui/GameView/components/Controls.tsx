@@ -7,7 +7,7 @@ const Controls = () => {
     dispatch({ type: 'reDeal' })
   }
 
-  const changeLevelHandler = (level: string) => {
+  const changeLevelHandler = (level: 'path' | 'ring' | 'generated') => {
     dispatch({ type: 'changeLevel', level })
   }
 
@@ -18,6 +18,7 @@ const Controls = () => {
       </button>
       <button onClick={() => changeLevelHandler('path')} className="bg-blue-500 text-white p-2 rounded-md">Path</button>
       <button onClick={() => changeLevelHandler('ring')} className="bg-blue-500 text-white p-2 rounded-md">Ring</button>
+      <button onClick={() => changeLevelHandler('generated')} className="bg-blue-500 text-white p-2 rounded-md">Generated</button>
     </div>
   )
 }
