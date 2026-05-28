@@ -14,7 +14,7 @@ import {
   isCardInPlacedCards,
   shuffleDeck,
 } from '@/game/helpers'
-import { makeCard, makeCell, makeState } from '@/test/utils/factories'
+import { makeCard, makeCell, makeState, makeWildCard } from '@/test/utils/factories'
 
 describe('getCard', () => {
   const placed = makeCard('placed', 'red', 'blue')
@@ -154,6 +154,31 @@ describe('edgesMatch', () => {
 
     expect(edgesMatch(a, 'right', b, 'left')).toBe(false)
   })
+
+  it('wild card matches any regular color on any side', () => {
+    const wild = makeWildCard('w')
+    const red = makeCard('r', 'red', 'red')
+
+    expect(edgesMatch(wild, 'right', red, 'left')).toBe(true)
+    expect(edgesMatch(wild, 'bottom', red, 'top')).toBe(true)
+    expect(edgesMatch(wild, 'left', red, 'right')).toBe(true)
+    expect(edgesMatch(wild, 'top', red, 'bottom')).toBe(true)
+  })
+
+  it('any regular color matches a wild card neighbor', () => {
+    const wild = makeWildCard('w')
+    const blue = makeCard('b', 'blue', 'green')
+
+    expect(edgesMatch(blue, 'right', wild, 'left')).toBe(true)
+    expect(edgesMatch(blue, 'bottom', wild, 'top')).toBe(true)
+  })
+
+  it('two wild cards always match', () => {
+    const w1 = makeWildCard('w1')
+    const w2 = makeWildCard('w2')
+
+    expect(edgesMatch(w1, 'right', w2, 'left')).toBe(true)
+  })
 })
 
 describe('neighborsOf', () => {
@@ -242,6 +267,30 @@ describe('isHappy', () => {
 
     expect(isHappy(cells[0]!, gameState)).toBe(false)
     expect(isHappy(cells[1]!, gameState)).toBe(false)
+  })
+
+  it('wild card is happy next to any color', () => {
+    const wild = makeWildCard('w')
+    const red = makeCard('r', 'red', 'yellow')
+    const cells = [
+      makeCell(0, 0, { cardId: 'w' }),
+      makeCell(0, 1, { cardId: 'r' }),
+    ]
+    const gameState = makeState(1, 2, cells, { placedCards: { w: wild, r: red } })
+
+    expect(isHappy(cells[0]!, gameState)).toBe(true)
+  })
+
+  it('regular card is happy next to a wild card regardless of edge color', () => {
+    const wild = makeWildCard('w')
+    const blue = makeCard('b', 'blue', 'green')
+    const cells = [
+      makeCell(0, 0, { cardId: 'w' }),
+      makeCell(0, 1, { cardId: 'b' }),
+    ]
+    const gameState = makeState(1, 2, cells, { placedCards: { w: wild, b: blue } })
+
+    expect(isHappy(cells[1]!, gameState)).toBe(true)
   })
 })
 

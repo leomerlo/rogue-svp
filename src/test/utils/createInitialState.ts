@@ -19,7 +19,7 @@ const PATH_BUFFER_CARDS: Card[] = [
   makeCard('path-d1', 'yellow', 'blue'),
   makeCard('path-d2', 'red', 'yellow'),
   makeCard('path-d3', 'green', 'yellow'),
-  makeCard('path-d4', 'wild', 'blue'),
+  makeCard('path-d4', 'blue', 'red'),
   makeCard('path-d5', 'yellow', 'green'),
 ]
 

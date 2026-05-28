@@ -1,12 +1,11 @@
-type Color = 'red' | 'blue' | 'green' | 'yellow' | 'wild';
+type RegularColor = 'red' | 'blue' | 'green' | 'yellow';
+type Color = RegularColor | 'wild';
 
 type Side = 'top' | 'bottom' | 'left' | 'right';
 
-interface Card {
-  id: string;
-  colorA: Color; // covers top + left edges
-  colorB: Color; // covers bottom + right edges
-}
+type Card =
+  | { id: string; colorA: 'wild'; colorB: 'wild' }
+  | { id: string; colorA: RegularColor; colorB: RegularColor }
 
 type CellState = 'free' | 'blocked';
 
@@ -53,4 +52,4 @@ type InteractionAction =
   | ActionOf<'placeCard'>
   | ActionOf<'swapCard'>
 
-export type { ActionOf, Card, Cell, Color, GameAction, GameState, InteractionAction, Place, Side, Swap };
+export type { ActionOf, Card, Cell, Color, GameAction, GameState, InteractionAction, Place, RegularColor, Side, Swap };
