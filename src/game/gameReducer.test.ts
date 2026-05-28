@@ -3,7 +3,7 @@ import { gameReducer } from './gameReducer'
 import { makeCard, makeCell, makeState } from '@/test/utils/factories'
 import {
   createM11PathInitialState,
-  createM11PathMidGameState,
+  M11_PATH_SOLUTION,
 } from '@/test/utils/createInitialState'
 import type { GameAction } from './types'
 
@@ -44,9 +44,12 @@ describe('gameReducer', () => {
   })
 
   it('resetGame returns the initial M11 path state', () => {
-    const midGame = createM11PathMidGameState()
+    const modified = gameReducer(createM11PathInitialState(), {
+      type: 'placeCard',
+      move: M11_PATH_SOLUTION[0]!,
+    })
 
-    const next = gameReducer(midGame, { type: 'resetGame' })
+    const next = gameReducer(modified, { type: 'resetGame' })
 
     expect(next).toEqual(createM11PathInitialState())
   })

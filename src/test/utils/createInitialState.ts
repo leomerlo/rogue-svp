@@ -32,28 +32,9 @@ const M11_PATH_SOLUTION: Place[] = [
   { cardId: 'path-p5', row: 0, col: 5 },
 ]
 
-const M11_PATH_MIDGAME_PLACED_COUNT = 3
-const M11_PATH_MIDGAME_ROWS = 2
-const M11_PATH_MIDGAME_BLOCKED_ROW = 1
-
-const M11_PATH_REMAINING_SOLUTION: Place[] = M11_PATH_SOLUTION.slice(M11_PATH_MIDGAME_PLACED_COUNT)
-
-const M11_PATH_LOSE_ROW_CARDS: Card[] = [
-  ...PATH_SOLUTION_CARDS.slice(0, M11_PATH_MIDGAME_PLACED_COUNT),
-  PATH_BUFFER_CARDS[0]!,
-  PATH_BUFFER_CARDS[1]!,
-  PATH_BUFFER_CARDS[2]!,
-]
-
 function createM11PathCells() {
   return Array.from({ length: PATH_ROWS * PATH_COLS }, (_, i) =>
     makeCell(Math.floor(i / PATH_COLS), i % PATH_COLS),
-  )
-}
-
-function createM11PathBlockedRow() {
-  return Array.from({ length: PATH_COLS }, (_, col) =>
-    makeCell(M11_PATH_MIDGAME_BLOCKED_ROW, col, { state: 'blocked' }),
   )
 }
 
@@ -65,69 +46,8 @@ function createM11PathInitialState(): GameState {
   return makeState(PATH_ROWS, PATH_COLS, cells, { hand, deck })
 }
 
-function createM11PathMidGameState(): GameState {
-  const placedCards = PATH_SOLUTION_CARDS.slice(0, M11_PATH_MIDGAME_PLACED_COUNT)
-  const playRow = createM11PathCells().map((cell, index) =>
-    index < M11_PATH_MIDGAME_PLACED_COUNT
-      ? { ...cell, cardId: placedCards[index]!.id }
-      : cell,
-  )
-  const blockedRow = createM11PathBlockedRow()
-  const hand = PATH_SOLUTION_CARDS.slice(
-    M11_PATH_MIDGAME_PLACED_COUNT,
-    M11_PATH_MIDGAME_PLACED_COUNT + 3,
-  )
-  const deck = [...PATH_BUFFER_CARDS]
-
-  return makeState(M11_PATH_MIDGAME_ROWS, PATH_COLS, [...playRow, ...blockedRow], {
-    hand,
-    deck,
-    placedCards: Object.fromEntries(placedCards.map(card => [card.id, card])),
-  })
-}
-
-function createM11PathWinState(): GameState {
-  const playRow = createM11PathCells().map((cell, index) => ({
-    ...cell,
-    cardId: PATH_SOLUTION_CARDS[index]!.id,
-  }))
-  const placedCards = Object.fromEntries(
-    PATH_SOLUTION_CARDS.map(card => [card.id, card]),
-  )
-
-  return makeState(M11_PATH_MIDGAME_ROWS, PATH_COLS, [...playRow, ...createM11PathBlockedRow()], {
-    hand: PATH_BUFFER_CARDS.slice(0, 2),
-    deck: PATH_BUFFER_CARDS.slice(2),
-    placedCards,
-    status: 'won',
-  })
-}
-
-function createM11PathLoseState(): GameState {
-  const playRow = createM11PathCells().map((cell, index) => ({
-    ...cell,
-    cardId: M11_PATH_LOSE_ROW_CARDS[index]!.id,
-  }))
-  const placedCards = Object.fromEntries(
-    M11_PATH_LOSE_ROW_CARDS.map(card => [card.id, card]),
-  )
-
-  return makeState(M11_PATH_MIDGAME_ROWS, PATH_COLS, [...playRow, ...createM11PathBlockedRow()], {
-    hand: PATH_SOLUTION_CARDS.slice(M11_PATH_MIDGAME_PLACED_COUNT),
-    deck: PATH_BUFFER_CARDS.slice(3),
-    placedCards,
-    status: 'lost',
-  })
-}
-
 export {
   createM11PathInitialState,
-  createM11PathLoseState,
-  createM11PathMidGameState,
-  createM11PathWinState,
-  M11_PATH_LOSE_ROW_CARDS,
-  M11_PATH_MIDGAME_PLACED_COUNT,
-  M11_PATH_REMAINING_SOLUTION,
   M11_PATH_SOLUTION,
   PATH_BUFFER_CARDS,
   PATH_SOLUTION_CARDS,
