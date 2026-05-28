@@ -9,7 +9,6 @@ export function createDefaultGameState(): GameState {
       col,
       state: 'free',
       cardId: null,
-      fixedColor: null,
     })),
     hand: [],
     deck: [],

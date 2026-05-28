@@ -7,14 +7,13 @@ type Card =
   | { id: string; colorA: 'wild'; colorB: 'wild' }
   | { id: string; colorA: RegularColor; colorB: RegularColor }
 
-type CellState = 'free' | 'blocked';
+type CellState = 'free' | 'blocked' | 'pinned';
 
 interface Cell {
   row: number;
   col: number;
   state: CellState;
   cardId: string | null;
-  fixedColor: Color | null;
 }
 
 interface GameState {
@@ -58,6 +57,7 @@ interface TopologyParams {
   cols: number;
   targetFreeSeats?: number;
   seed?: number;
+  pinnedCount?: number;
 }
 
 interface TopologyDef {
@@ -70,6 +70,7 @@ interface DeckParams {
   seed?: number;
   bufferSize?: number;
   wildCount?: number;
+  excludeCardIds?: string[];
 }
 
 interface DeckDef {

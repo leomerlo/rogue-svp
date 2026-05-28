@@ -5,14 +5,26 @@ import { freeSeats, neighborSeats, seatKey } from '@/game/solutionAssignment'
 function findValidArrangement(
   topology: TopologyDef,
   cards: Card[],
+  fixedBySeat: Map<string, Card> = new Map(),
 ): Map<string, string> | null {
   const seats = freeSeats(topology)
-  const freeSet = new Set(seats.map((s) => cellKey(s.row, s.col)))
+  const playableSet = new Set(
+    topology.cells
+      .filter((c) => c.state === 'free' || c.state === 'pinned')
+      .map((c) => cellKey(c.row, c.col)),
+  )
   const assignment = new Map<string, string>()
   const cardsById = new Map(cards.map((c) => [c.id, c]))
 
+  for (const [key, card] of fixedBySeat) {
+    assignment.set(key, card.id)
+    cardsById.set(card.id, card)
+  }
+
+  const usedCardIds = new Set(fixedBySeat.values().map((c) => c.id))
+
   function edgesConsistent(seat: { row: number; col: number }, card: Card): boolean {
-    for (const neighbor of neighborSeats(topology, seat, freeSet)) {
+    for (const neighbor of neighborSeats(topology, seat, playableSet)) {
       const nKey = seatKey(neighbor.row, neighbor.col)
       const neighborCardId = assignment.get(nKey)
       if (neighborCardId === undefined) continue
@@ -34,31 +46,36 @@ function findValidArrangement(
     return true
   }
 
-  function backtrack(seatIndex: number, usedCardIds: Set<string>): boolean {
+  function backtrack(
+    seatIndex: number,
+    usedIds: Set<string>,
+    pool: Card[],
+  ): boolean {
     if (seatIndex >= seats.length) return true
 
     const seat = seats[seatIndex]!
     const key = seatKey(seat.row, seat.col)
 
-    for (const card of cards) {
-      if (usedCardIds.has(card.id)) continue
+    for (const card of pool) {
+      if (usedIds.has(card.id)) continue
       if (!edgesConsistent(seat, card)) continue
 
       assignment.set(key, card.id)
-      usedCardIds.add(card.id)
+      usedIds.add(card.id)
 
-      if (backtrack(seatIndex + 1, usedCardIds)) return true
+      if (backtrack(seatIndex + 1, usedIds, pool)) return true
 
       assignment.delete(key)
-      usedCardIds.delete(card.id)
+      usedIds.delete(card.id)
     }
 
     return false
   }
 
-  if (seats.length > cards.length) return null
+  const availableCards = cards.filter((c) => !usedCardIds.has(c.id))
+  if (seats.length > availableCards.length) return null
 
-  if (backtrack(0, new Set())) {
+  if (backtrack(0, usedCardIds, availableCards)) {
     return assignment
   }
 

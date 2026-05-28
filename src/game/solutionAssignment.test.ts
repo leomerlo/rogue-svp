@@ -41,12 +41,12 @@ function stateFromSolution(topology: TopologyDef, cards: ReturnType<typeof build
   const placedCards: Record<string, (typeof cards)[number]> = {}
   const cells = topology.cells.map(({ row, col, state }) => {
     if (state === 'blocked') {
-      return { row, col, state, cardId: null, fixedColor: null }
+      return { row, col, state, cardId: null }
     }
     const seatIndex = seats.findIndex((s) => s.row === row && s.col === col)
     const card = cards[seatIndex]!
     placedCards[card.id] = card
-    return { row, col, state, cardId: card.id, fixedColor: null }
+    return { row, col, state, cardId: card.id }
   })
 
   return makeState(topology.rows, topology.cols, cells, { placedCards })

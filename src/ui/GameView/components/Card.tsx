@@ -14,9 +14,10 @@ type CardProps = {
   selected?: boolean
   disabled?: boolean
   onClick?: () => void
+  pinned?: boolean
 }
 
-const Card = ({ card, happiness, selected, disabled, onClick }: CardProps) => {
+const Card = ({ card, happiness, selected, disabled, onClick, pinned }: CardProps) => {
   const colorA = COLOR_FILL[card.colorA]
   const colorB = COLOR_FILL[card.colorB]
   const isWild = card.colorA === 'wild' && card.colorB === 'wild'
@@ -44,6 +45,7 @@ const Card = ({ card, happiness, selected, disabled, onClick }: CardProps) => {
       aria-disabled={disabled}
     >
       {isWild && <div className="text-black text-8xl font-bold">W</div>}
+      {pinned && <div className="text-black text-8xl font-bold">P</div>}
     </div>
   )
 }

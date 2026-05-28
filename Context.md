@@ -39,7 +39,7 @@ La capa narrativa cuenta una **saga generacional** de comedia/drama al estilo *P
 ### 2.1 Cartas, asientos, felicidad
 
 - Cada carta = un invitado, **dividida diagonalmente en dos colores (mitad A / mitad B)**. Cada color cubre **dos de los cuatro bordes cardinales** de la carta (por convención fija: A en superior+izquierdo, B en inferior+derecho — la diagonal exacta es detalle de arte). Ver ADR-0001.
-- La mesa es una **grilla MxN de celdas**. Cada celda es **libre** (un asiento) o **bloqueada** (parte del layout). Dos asientos son adyacentes si comparten un borde cardinal en la grilla (top/bottom/left/right).
+- La mesa es una **grilla MxN de celdas**. Cada celda es **libre** (asiento vacío), **anclada** (asiento con carta pre-colocada, inmovible) o **bloqueada** (hueco del layout). Dos asientos son adyacentes si comparten un borde cardinal en la grilla (top/bottom/left/right).
 - Un invitado está "feliz" si **cada asiento adyacente** (celda libre ortogonal, no bloqueada) **tiene carta** y, en ese borde compartido, los colores coinciden (o uno es wild). Un asiento vacío adyacente implica infeliz.
 - Cartas comodín (*wild*) cuentan como cualquier color en ambas mitades.
 - **Objetivo de cada fiesta:** todos los invitados felices al terminar de sentar.
@@ -114,7 +114,7 @@ Cada carta tiene un valor en una de 6 escalones, asignado por la "rareza" de su 
 
 - **Topología:** grilla MxN con **patrón de celdas bloqueadas** generado proceduralmente (ADR-0001). Toda la variedad visual y mecánica viene de qué celdas se bloquean. Layouts típicos: anillo perimetral (centro bloqueado), anillo con cola, anillo doble, forma de H, mesa con isla central, ramificaciones (puentes finos entre regiones), filas independientes, etc.
 - **Mazo:** cantidad de colores en juego, proporciones, wilds, especiales.
-- **Restricciones:** asientos VIP de color fijo, sillas rotas (bloqueos adicionales), asientos vacíos obligatorios.
+- **Restricciones:** asientos anclados (carta pre-colocada, inmovible — ver ADR-0016), sillas rotas (bloqueos adicionales), asientos vacíos obligatorios.
 
 **Estrategia de solvability:**
 
