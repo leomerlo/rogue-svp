@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { findValidArrangement } from '@/game/arrangementSolver'
 import { generateDeck } from '@/game/deck'
-import { freeSeats } from '@/game/solutionAssignment'
+import { buildSolutionCards, freeSeats } from '@/game/solutionAssignment'
 import { generateTopology } from '@/game/topology'
 
 function countWilds(cards: { colorA: string }[]) {
@@ -38,6 +38,19 @@ describe('generateDeck', () => {
     const deck = generateDeck(topology, { seed: 6 })
 
     expect(countWilds(deck.cards)).toBe(1)
+  })
+
+  it('excludes given solution card ids and shrinks the deck', () => {
+    const topology = generateTopology({ rows: 4, cols: 4, seed: 10 })
+    const seats = freeSeats(topology).length
+    const excluded = buildSolutionCards(topology, 11).slice(0, 2).map((c) => c.id)
+
+    const deck = generateDeck(topology, { seed: 11, excludeCardIds: excluded })
+
+    expect(deck.cards).toHaveLength(seats + 6 - excluded.length)
+    for (const id of excluded) {
+      expect(deck.cards.some((c) => c.id === id)).toBe(false)
+    }
   })
 
   it('has a solver-verified arrangement for many generated pairs', () => {

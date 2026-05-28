@@ -93,4 +93,32 @@ describe('Card', () => {
     fireEvent.click(screen.getByTestId('card'))
     expect(clickHandler).not.toHaveBeenCalled()
   })
+
+  it('shows a P label when pinned', () => {
+    const card = makeCard('c1', 'red', 'green')
+    const state = makeState(1, 1, [makeCell(0, 0)])
+
+    renderWithGameState(<Card card={card} pinned />, state)
+
+    expect(screen.getByText('P')).toBeDefined()
+  })
+
+  it('does not show a P label when not pinned', () => {
+    const card = makeCard('c1', 'red', 'green')
+    const state = makeState(1, 1, [makeCell(0, 0)])
+
+    renderWithGameState(<Card card={card} />, state)
+
+    expect(screen.queryByText('P')).not.toBeInTheDocument()
+  })
+
+  it('shows both W and P labels for a pinned wild card', () => {
+    const card = makeWildCard('wild-1')
+    const state = makeState(1, 1, [makeCell(0, 0)])
+
+    renderWithGameState(<Card card={card} pinned />, state)
+
+    expect(screen.getByText('W')).toBeDefined()
+    expect(screen.getByText('P')).toBeDefined()
+  })
 })

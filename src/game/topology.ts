@@ -90,8 +90,7 @@ function topologyDefToCells(def: TopologyDef): Cell[] {
     row,
     col,
     state,
-    cardId: null,
-    fixedColor: null,
+    cardId: null
   }))
 }
 

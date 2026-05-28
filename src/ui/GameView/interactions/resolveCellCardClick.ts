@@ -5,6 +5,9 @@ import type { ResolvedAction } from "@/ui/GameView/interactions/types"
 export function resolveCellCardClick(state: GameState, targetCell: Cell): ResolvedAction {
   // Global rule: if the game is over, there is no interaction
   if (state.status !== 'playing') return null
+  
+  // Click on a pinned cell => do nothing
+  if (targetCell.state === 'pinned') return null
 
   const selectedId = state.selectedCardId
   const targetCardId = targetCell.cardId

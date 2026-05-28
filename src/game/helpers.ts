@@ -129,13 +129,13 @@ function isHappy(cell: Cell, state: GameState, lookup = buildCellLookup(state)):
 }
 
 function isTableFull(state: GameState): boolean {
-  return state.cells.every(cell => cell.state !== 'free' || cell.cardId !== null)
+  return state.cells.every(cell => cell.state === 'blocked' || cell.cardId !== null)
 }
 
 function isSolved(state: GameState): boolean {
   if (!isTableFull(state)) return false
   const lookup = buildCellLookup(state)
-  return state.cells.every(cell => cell.state !== 'free' || isHappy(cell, state, lookup))
+  return state.cells.every(cell => cell.state === 'blocked' || isHappy(cell, state, lookup))
 }
 
 function shuffleDeck(deck: Card[]): Card[] {

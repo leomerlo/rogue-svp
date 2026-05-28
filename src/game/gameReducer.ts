@@ -22,7 +22,8 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       switch (action.level) {
         case 'path': return createPathInitialState()
         case 'ring': return createRingInitialState()
-        case 'generated': return createGeneratedGameState({ rows: 4, cols: 4, seed: 42 })
+        case 'generated': return createGeneratedGameState({ rows: 4, cols: 4, seed: 42, pinnedCount: 1 })
+        default: return state
       }
     default:
       return state

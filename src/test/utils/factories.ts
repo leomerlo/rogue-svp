@@ -14,7 +14,6 @@ export function makeCell(row: number, col: number, overrides: Partial<Cell> = {}
     col,
     state: 'free',
     cardId: null,
-    fixedColor: null,
     ...overrides,
   }
 }

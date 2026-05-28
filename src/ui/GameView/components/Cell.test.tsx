@@ -100,4 +100,35 @@ describe('Cell', () => {
     fireEvent.click(cardElement)
     expect(cardElement).not.toHaveClass('border-blue-500')
   })
+
+  it('shows a P label when the cell is pinned', () => {
+    const card = makeCard('c1', 'red', 'blue')
+    const cell = makeCell(0, 0, { state: 'pinned', cardId: 'c1' })
+    const state = makeState(1, 1, [cell], { placedCards: { c1: card } })
+
+    renderWithGameState(<Cell cell={cell} card={card} />, state)
+
+    expect(screen.getByText('P')).toBeInTheDocument()
+  })
+
+  it('does not show a P label when the cell is not pinned', () => {
+    const card = makeCard('c1', 'red', 'blue')
+    const cell = makeCell(0, 0, { cardId: 'c1' })
+    const state = makeState(1, 1, [cell], { placedCards: { c1: card } })
+
+    renderWithGameState(<Cell cell={cell} card={card} />, state)
+
+    expect(screen.queryByText('P')).not.toBeInTheDocument()
+  })
+
+  it('does not select a pinned card when clicked', () => {
+    const card = makeCard('c1', 'red', 'blue')
+    const cell = makeCell(0, 0, { state: 'pinned', cardId: 'c1' })
+    const state = makeState(1, 1, [cell], { placedCards: { c1: card } })
+
+    renderWithGameState(<Cell cell={cell} card={card} />, state)
+
+    fireEvent.click(screen.getByTestId('card'))
+    expect(screen.getByTestId('card')).not.toHaveClass('border-blue-500')
+  })
 })

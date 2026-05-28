@@ -36,12 +36,12 @@ function stateFromArrangement(
   const placedCards: Record<string, (typeof cards)[number]> = {}
   const cells = topology.cells.map(({ row, col, state }) => {
     if (state === 'blocked') {
-      return { row, col, state, cardId: null, fixedColor: null }
+      return { row, col, state, cardId: null }
     }
     const cardId = arrangement.get(seatKey(row, col))!
     const card = cardsById.get(cardId)!
     placedCards[cardId] = card
-    return { row, col, state, cardId, fixedColor: null }
+    return { row, col, state, cardId }
   })
 
   return makeState(topology.rows, topology.cols, cells, { placedCards })

@@ -33,7 +33,9 @@ function generateDeck(topology: TopologyDef, params?: DeckParams): DeckDef {
   const bufferSize = params?.bufferSize ?? DEFAULT_BUFFER_SIZE
   const wildCount = params?.wildCount ?? DEFAULT_WILD_COUNT
 
+  const excludeSet = new Set(params?.excludeCardIds ?? [])
   const solutionCards = buildSolutionCards(topology, seed)
+  const playableCards = solutionCards.filter((c) => !excludeSet.has(c.id))
   const bufferCards = buildBufferCards({
     count: bufferSize,
     wildCount,
@@ -41,7 +43,7 @@ function generateDeck(topology: TopologyDef, params?: DeckParams): DeckDef {
   })
 
   const cards = shuffled(
-    [...solutionCards, ...bufferCards],
+    [...playableCards, ...bufferCards],
     seededRandom(seed + 2000),
   )
 

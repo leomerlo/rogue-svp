@@ -14,7 +14,7 @@ const Cell = ({ cell, card }: { cell: CellType; card: CardType | null }) => {
     if (action) dispatch(action);
   }
 
-  if (card !== null) return <Card card={card} happiness={happy ? 'happy' : 'unhappy'} onClick={handleCellClick} selected={gameState.selectedCardId === cell.cardId} />
+  if (card !== null) return <Card card={card} happiness={happy ? 'happy' : 'unhappy'} onClick={handleCellClick} selected={gameState.selectedCardId === cell.cardId} pinned={cell.state === 'pinned'} />
   
   return (
     <div

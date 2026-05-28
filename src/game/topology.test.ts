@@ -118,13 +118,12 @@ describe('generateTopology', () => {
 })
 
 describe('topologyDefToCells', () => {
-  it('produces full Cell[] with cardId null and fixedColor null', () => {
+  it('produces full Cell[] with cardId null', () => {
     const def = generateTopology({ rows: 3, cols: 3, targetFreeSeats: 6, seed: 5 })
     const cells = topologyDefToCells(def)
     expect(cells.length).toBe(9)
     for (const cell of cells) {
       expect(cell.cardId).toBeNull()
-      expect(cell.fixedColor).toBeNull()
       expect(['free', 'blocked']).toContain(cell.state)
     }
   })

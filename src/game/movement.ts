@@ -58,8 +58,8 @@ function applyMove(state: GameState, move: Place): GameState {
 
   const targetCell = state.cells[cellIndex]!
 
-  if (targetCell.state === 'blocked') {
-    throw new Error('Cell is blocked')
+  if (targetCell.state === 'blocked' || targetCell.state === 'pinned') {
+    throw new Error('Cell is blocked or pinned')
   }
 
   if (targetCell.cardId !== null) {
@@ -107,8 +107,8 @@ function swapCard(state: GameState, move: Swap): GameState {
   const cellFrom = state.cells[cellFromIndex]!
   const cellTo = state.cells[cellToIndex]!
 
-  if (cellFrom.state === 'blocked' || cellTo.state === 'blocked') {
-    throw new Error('Cell is blocked')
+  if (cellFrom.state === 'blocked' || cellTo.state === 'blocked' || cellFrom.state === 'pinned' || cellTo.state === 'pinned') {
+    throw new Error('Cell is blocked or pinned')
   }
 
   const cardFrom = cellFrom.cardId

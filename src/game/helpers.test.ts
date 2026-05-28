@@ -326,6 +326,18 @@ describe('isSolved', () => {
 
     expect(isSolved(gameState)).toBe(false)
   })
+
+  it('returns true when a pinned cell is occupied and happy', () => {
+    const pinned = makeCard('p', 'red', 'green')
+    const free = makeCard('f', 'green', 'blue')
+    const cells = [
+      makeCell(0, 0, { state: 'pinned', cardId: 'p' }),
+      makeCell(0, 1, { cardId: 'f' }),
+    ]
+    const gameState = makeState(1, 2, cells, { placedCards: { p: pinned, f: free } })
+
+    expect(isSolved(gameState)).toBe(true)
+  })
 })
 
 describe('shuffleDeck', () => {

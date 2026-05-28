@@ -46,6 +46,14 @@ describe('resolveCellCardClick', () => {
     })
   })
 
+  it('returns null when clicking a pinned cell', () => {
+    const placed = makeCard('p1', 'red', 'green')
+    const cell = makeCell(0, 0, { state: 'pinned', cardId: 'p1' })
+    const state = makeState(1, 1, [cell], { placedCards: { p1: placed } })
+
+    expect(resolveCellCardClick(state, cell)).toBeNull()
+  })
+
   it('returns null when game is over', () => {
     const placed = makeCard('p1', 'red', 'green')
     const cell = makeCell(0, 0, { cardId: 'p1' })
