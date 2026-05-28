@@ -19,6 +19,7 @@ type CardProps = {
 const Card = ({ card, happiness, selected, disabled, onClick }: CardProps) => {
   const colorA = COLOR_FILL[card.colorA]
   const colorB = COLOR_FILL[card.colorB]
+  const isWild = card.colorA === 'wild' && card.colorB === 'wild'
 
   const borderColor = selected
     ? 'border-blue-500'
@@ -26,18 +27,24 @@ const Card = ({ card, happiness, selected, disabled, onClick }: CardProps) => {
     : happiness === 'unhappy' ? 'border-red-500'
     : 'border-gray-300';
 
+  const cardBackground = isWild ? 
+    'linear-gradient(135deg,red 0%,red 14.3%,orange 14.3%,orange 28.6%,yellow 28.6%,yellow 42.9%,lime 42.9%,lime 57.1%,cyan 57.1%,cyan 71.4%,blue 71.4%,blue 85.7%,violet 85.7%,violet 100%)'
+    : `linear-gradient(to bottom right, ${colorA} 50%, ${colorB} 50%)`
+
   return (
     <div
       data-testid="card"
-      className={`h-full w-full aspect-square overflow-hidden rounded border-2 ${borderColor}`}
+      className={`h-full w-full aspect-square overflow-hidden rounded border-2 ${borderColor} flex items-center justify-center`}
       style={{
-        background: `linear-gradient(to bottom right, ${colorA} 50%, ${colorB} 50%)`,
+        background: cardBackground,
       }}
       aria-label={`${card.colorA} / ${card.colorB}`}
       onClick={disabled ? undefined : onClick}
       role="button"
       aria-disabled={disabled}
-    />
+    >
+      {isWild && <div className="text-black text-8xl font-bold">W</div>}
+    </div>
   )
 }
 

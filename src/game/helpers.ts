@@ -109,6 +109,7 @@ function touchingSides(cell: Cell, neighbor: Cell): { mySide: Side; theirSide: S
 }
 
 function edgesMatch(a: Card, aSide: Side, b: Card, bSide: Side): boolean {
+  if (a.colorA === 'wild' || b.colorA === 'wild') return true
   return edgeColor(a, aSide) === edgeColor(b, bSide)
 }
 

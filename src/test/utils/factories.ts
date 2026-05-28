@@ -1,7 +1,11 @@
-import type { Card, Cell, Color, GameState } from '@/game/types'
+import type { Card, Cell, GameState, RegularColor } from '@/game/types'
 
-export function makeCard(id: string, colorA: Color, colorB: Color): Card {
+export function makeCard(id: string, colorA: RegularColor, colorB: RegularColor): Card {
   return { id, colorA, colorB }
+}
+
+export function makeWildCard(id: string): Card {
+  return { id, colorA: 'wild', colorB: 'wild' }
 }
 
 export function makeCell(row: number, col: number, overrides: Partial<Cell> = {}): Cell {
