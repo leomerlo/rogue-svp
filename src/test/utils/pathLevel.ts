@@ -1,10 +1,10 @@
 import { makeCard, makeCell, makeState } from '@/test/utils/factories'
 import type { Card, GameState, Place } from '@/game/types'
 
-const PATH_ROWS = 1
-const PATH_COLS = 6
+const ROWS = 1
+const COLS = 6
 
-const PATH_SOLUTION_CARDS: Card[] = [
+const SOLUTION_CARDS: Card[] = [
   makeCard('path-p0', 'red', 'green'),
   makeCard('path-p1', 'green', 'blue'),
   makeCard('path-p2', 'blue', 'yellow'),
@@ -14,7 +14,7 @@ const PATH_SOLUTION_CARDS: Card[] = [
 ]
 
 // never required for the known solution
-const PATH_BUFFER_CARDS: Card[] = [
+const BUFFER_CARDS: Card[] = [
   makeCard('path-d0', 'blue', 'red'),
   makeCard('path-d1', 'yellow', 'blue'),
   makeCard('path-d2', 'red', 'yellow'),
@@ -23,7 +23,7 @@ const PATH_BUFFER_CARDS: Card[] = [
   makeCard('path-d5', 'yellow', 'green'),
 ]
 
-const M11_PATH_SOLUTION: Place[] = [
+const SOLUTION: Place[] = [
   { cardId: 'path-p0', row: 0, col: 0 },
   { cardId: 'path-p1', row: 0, col: 1 },
   { cardId: 'path-p2', row: 0, col: 2 },
@@ -32,23 +32,23 @@ const M11_PATH_SOLUTION: Place[] = [
   { cardId: 'path-p5', row: 0, col: 5 },
 ]
 
-function createM11PathCells() {
-  return Array.from({ length: PATH_ROWS * PATH_COLS }, (_, i) =>
-    makeCell(Math.floor(i / PATH_COLS), i % PATH_COLS),
+function createPathCells() {
+  return Array.from({ length: ROWS * COLS }, (_, i) =>
+    makeCell(Math.floor(i / COLS), i % COLS),
   )
 }
 
-function createM11PathInitialState(): GameState {
-  const cells = createM11PathCells()
-  const hand = PATH_SOLUTION_CARDS.slice(0, 3)
-  const deck = [...PATH_SOLUTION_CARDS.slice(3), ...PATH_BUFFER_CARDS]
+function createPathInitialState(): GameState {
+  const cells = createPathCells()
+  const hand = SOLUTION_CARDS.slice(0, 3)
+  const deck = [...SOLUTION_CARDS.slice(3), ...BUFFER_CARDS]
 
-  return makeState(PATH_ROWS, PATH_COLS, cells, { hand, deck })
+  return makeState(ROWS, COLS, cells, { hand, deck })
 }
 
 export {
-  createM11PathInitialState,
-  M11_PATH_SOLUTION,
-  PATH_BUFFER_CARDS,
-  PATH_SOLUTION_CARDS,
+  createPathInitialState,
+  SOLUTION as PATH_SOLUTION,
+  BUFFER_CARDS as PATH_BUFFER_CARDS,
+  SOLUTION_CARDS as PATH_SOLUTION_CARDS,
 }

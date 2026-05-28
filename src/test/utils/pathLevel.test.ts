@@ -2,13 +2,13 @@ import { describe, expect, it } from 'vitest'
 import { isSolved } from '@/game/helpers'
 import { applyMove } from '@/game/movement'
 import {
-  createM11PathInitialState,
-  M11_PATH_SOLUTION,
-} from './createInitialState'
+  createPathInitialState,
+  PATH_SOLUTION,
+} from './pathLevel'
 
-describe('createM11PathInitialState', () => {
+describe('createPathInitialState', () => {
   it('builds a 1×6 path with a 12-card deck and 3-card hand', () => {
-    const state = createM11PathInitialState()
+    const state = createPathInitialState()
 
     expect(state.rows).toBe(1)
     expect(state.cols).toBe(6)
@@ -22,9 +22,9 @@ describe('createM11PathInitialState', () => {
   })
 
   it('reaches a won state by applying the known solution sequence', () => {
-    let state = createM11PathInitialState()
+    let state = createPathInitialState()
 
-    for (const move of M11_PATH_SOLUTION) {
+    for (const move of PATH_SOLUTION) {
       state = applyMove(state, move)
     }
 

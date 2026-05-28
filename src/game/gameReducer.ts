@@ -1,6 +1,7 @@
 import type { GameState, GameAction } from '@/game/types'
 import { selectCard, deselectCard, applyMove, reDealCards, swapCard } from '@/game/movement'
-import { createM11PathInitialState } from '@/test/utils/createInitialState'
+import { createPathInitialState } from '@/test/utils/pathLevel'
+import { createRingInitialState } from '@/test/utils/ringLevel'
 
 export function gameReducer(state: GameState, action: GameAction): GameState {
   switch (action.type) {
@@ -13,9 +14,14 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
     case 'swapCard':
       return swapCard(state, action.move)
     case 'resetGame':
-      return createM11PathInitialState()
+      return createPathInitialState()
     case 'reDeal':
       return reDealCards(state)
+    case 'changeLevel':
+      {
+        const level = action.level === 'path' ? createPathInitialState() : createRingInitialState()
+        return level
+      }
     default:
       return state
   }

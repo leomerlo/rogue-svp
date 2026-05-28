@@ -2,9 +2,10 @@ import { describe, expect, it, vi } from 'vitest'
 import { gameReducer } from './gameReducer'
 import { makeCard, makeCell, makeState } from '@/test/utils/factories'
 import {
-  createM11PathInitialState,
-  M11_PATH_SOLUTION,
-} from '@/test/utils/createInitialState'
+  createPathInitialState,
+  PATH_SOLUTION,
+} from '@/test/utils/pathLevel'
+import { createRingInitialState } from '@/test/utils/ringLevel'
 import type { GameAction } from './types'
 
 describe('gameReducer', () => {
@@ -44,14 +45,14 @@ describe('gameReducer', () => {
   })
 
   it('resetGame returns the initial M11 path state', () => {
-    const modified = gameReducer(createM11PathInitialState(), {
+    const modified = gameReducer(createPathInitialState(), {
       type: 'placeCard',
-      move: M11_PATH_SOLUTION[0]!,
+      move: PATH_SOLUTION[0]!,
     })
 
     const next = gameReducer(modified, { type: 'resetGame' })
 
-    expect(next).toEqual(createM11PathInitialState())
+    expect(next).toEqual(createPathInitialState())
   })
 
   it('reDeal returns hand cards to the pool and decrements redealsLeft', () => {
@@ -119,10 +120,49 @@ describe('gameReducer', () => {
   })
 
   it('returns the current state for an unknown action', () => {
-    const state = createM11PathInitialState()
+    const state = createPathInitialState()
 
     const next = gameReducer(state, { type: 'unknown' } as GameAction)
 
     expect(next).toBe(state)
+  })
+
+  describe('changeLevel', () => {
+    it('changeLevel to path returns a fresh path state', () => {
+      const modified = gameReducer(createRingInitialState(), {
+        type: 'selectCard',
+        cardId: 'ring-p0',
+      })
+
+      const next = gameReducer(modified, { type: 'changeLevel', level: 'path' })
+
+      expect(next).toEqual(createPathInitialState())
+    })
+
+    it('changeLevel to ring returns a fresh ring state', () => {
+      const modified = gameReducer(createPathInitialState(), {
+        type: 'placeCard',
+        move: PATH_SOLUTION[0]!,
+      })
+
+      const next = gameReducer(modified, { type: 'changeLevel', level: 'ring' })
+
+      expect(next).toEqual(createRingInitialState())
+    })
+
+    it('changeLevel clears in-progress play from the previous table', () => {
+      const midGame = gameReducer(createPathInitialState(), {
+        type: 'placeCard',
+        move: PATH_SOLUTION[0]!,
+      })
+
+      const next = gameReducer(midGame, { type: 'changeLevel', level: 'ring' })
+
+      expect(next.cells.every((cell) => cell.cardId === null)).toBe(true)
+      expect(next.placedCards).toEqual({})
+      expect(next.selectedCardId).toBeNull()
+      expect(next.status).toBe('playing')
+      expect(next.redealsLeft).toBe(4)
+    })
   })
 })

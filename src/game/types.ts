@@ -43,6 +43,7 @@ type GameAction =
   | { type: 'swapCard'; move: Swap }
   | { type: 'resetGame' }
   | { type: 'reDeal' }
+  | { type: 'changeLevel'; level: string }
 
 type ActionOf<T extends GameAction['type']> = Extract<GameAction, { type: T }>
 
