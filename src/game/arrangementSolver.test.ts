@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { isSolved } from '@/game/helpers'
-import { findValidArrangement } from '@/game/arrangementSolver'
+import { countValidArrangements, findValidArrangement } from '@/game/arrangementSolver'
 import { makeState } from '@/test/utils/factories'
 import type { TopologyDef } from '@/game/types'
 import { seatKey } from '@/game/solutionAssignment'
@@ -76,5 +76,39 @@ describe('findValidArrangement', () => {
 
     const solved = stateFromArrangement(ringTopology(), cards, arrangement!)
     expect(isSolved(solved)).toBe(true)
+  })
+})
+
+describe('countValidArrangements', () => {
+  it('counts at least one arrangement when findValidArrangement succeeds', () => {
+    const state = createPathInitialState()
+    const cards = allDeckCards(state)
+    const topology = pathTopology()
+
+    expect(findValidArrangement(topology, cards)).not.toBeNull()
+    expect(countValidArrangements(topology, cards).count).toBeGreaterThanOrEqual(1)
+  })
+
+  it('counts multiple arrangements for the path level', () => {
+    const state = createPathInitialState()
+    const cards = allDeckCards(state)
+
+    expect(countValidArrangements(pathTopology(), cards).count).toBeGreaterThan(1)
+  })
+
+  it('caps counting at maxCount', () => {
+    const state = createPathInitialState()
+    const cards = allDeckCards(state)
+    const result = countValidArrangements(pathTopology(), cards, { maxCount: 3 })
+
+    expect(result.count).toBe(3)
+    expect(result.capped).toBe(true)
+  })
+
+  it('returns zero when seats exceed available cards', () => {
+    const topology = pathTopology()
+    const result = countValidArrangements(topology, [])
+
+    expect(result).toEqual({ count: 0, capped: false })
   })
 })

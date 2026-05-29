@@ -21,11 +21,12 @@ describe('Controls level changer', () => {
       state,
     )
 
-  it('renders Path and Ring level buttons', () => {
+  it('renders Path, Ring, and Generated buttons', () => {
     renderLevelChanger()
 
     expect(screen.getByRole('button', { name: 'Path' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Ring' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Generated' })).toBeInTheDocument()
   })
 
   it('switches from path to ring and updates the board and hand', () => {

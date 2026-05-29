@@ -151,6 +151,16 @@ describe('gameReducer', () => {
       expect(next).toEqual(createRingInitialState())
     })
 
+    it('changeLevel to generated starts the authored run at topology 0', () => {
+      const next = gameReducer(createPathInitialState(), {
+        type: 'changeLevel',
+        level: 'generated',
+      })
+
+      const expected = createGeneratedGameState(0, { seed: 42, pinnedCount: 1 })
+      expect(next).toEqual(expected)
+    })
+
     it('changeLevel clears in-progress play from the previous table', () => {
       const midGame = gameReducer(createPathInitialState(), {
         type: 'placeCard',
