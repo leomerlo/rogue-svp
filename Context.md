@@ -114,14 +114,15 @@ Cada carta tiene un valor en una de 6 escalones, asignado por la "rareza" de su 
 
 - La topología de cada mesa es **autoralmente definida**, no generada proceduralmente. La variedad visual y mecánica viene de **dónde** se ubican las celdas bloqueadas, no de cuántas hay.
 - Todas las mesas comparten una **grilla fija de 6×3** (18 celdas). La dificultad no viene del tamaño sino del patrón de bloqueos.
-- Hay **12 topologías autorales** organizadas en secuencia fija a lo largo de la run (4 por acto). Cada topología tiene un `id`, un nombre, y sus propios `deckParams` (`wildCount`, `bufferSize`).
+- Hay **12 topologías autorales** organizadas en secuencia fija a lo largo de la run (4 por acto). Cada topología tiene un `id` y un nombre.
 - **Principio clave:** mesas más difíciles tienen *más* celdas libres (mayor grado promedio → más bordes a satisfacer simultáneamente), no menos. Una grilla casi llena con patrón de bloqueo estratégico es más difícil que una grilla dispersa con muchos bloqueos aleatorios.
 
-**Mazo — generación procedural:**
+**Mazo — deck autoral fijo (ADR-0019):**
 
-- El mazo se sigue generando proceduralmente mediante *construcción inversa*: se genera una solución válida para la topología y se deriva el mazo desde ahí. Garantiza solvability.
-- La variedad entre runs viene del mazo generado sobre la misma topología, no de cambios de topología.
-- Los parámetros de mazo (`wildCount`, `bufferSize`) están definidos por topología, no por bandas de dificultad métricas.
+- El mazo es un **set fijo de 67 cartas** (`AUTHORED_DECK`) que replica el mazo original del juego RSVP de tablero. Reemplaza la generación procedural por construcción inversa.
+- El mazo **se resetea al inicio de cada nivel**: las 67 cartas están disponibles para cada topología. No hay depleción cross-level.
+- El mazo se **baraja en cada reset** usando el RNG con semilla de la run (`shuffled()` existente). El set de cartas es fijo; el orden de robo varía por run.
+- **Solvability pre-verificada**: un test en CI confirma que `AUTHORED_DECK` tiene ≥1 solución para cada una de las 12 topologías autorales. No hay verificación en runtime.
 
 **Asientos anclados:**
 
