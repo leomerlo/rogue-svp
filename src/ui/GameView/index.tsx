@@ -18,7 +18,11 @@ const GameView = () => {
         <Board />
         <Hand />
         <Controls />
-        <StatusOverlay status={gameState.status} />
+        <StatusOverlay
+          status={gameState.status}
+          topologyIndex={gameState.topologyIndex}
+          onAdvanceTopology={() => dispatch({ type: 'advanceTopology' })}
+        />
       </div>
     </div>
   )

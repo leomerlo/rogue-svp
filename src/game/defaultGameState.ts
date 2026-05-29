@@ -16,5 +16,6 @@ export function createDefaultGameState(): GameState {
     placedCards: {},
     status: 'playing',
     selectedCardId: null,
+    topologyIndex: null,
   }
 }

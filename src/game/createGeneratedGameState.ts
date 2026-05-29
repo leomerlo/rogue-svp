@@ -1,18 +1,24 @@
-import type { Card, DeckParams, GameState, TopologyParams } from '@/game/types'
+import type { Card, GameState } from '@/game/types'
 import { cellKey } from '@/game/helpers'
 import { generateDeck } from '@/game/deck'
 import { seededRandom, shuffled } from '@/game/seededRandom'
 import { buildSolutionCards, freeSeats, seatKey } from '@/game/solutionAssignment'
-import { generateTopology, topologyDefToCells } from '@/game/topology'
+import { getTopology } from '@/game/topologies'
+import { topologyDefToCells } from '@/game/topology'
+
+type GeneratedGameOptions = {
+  seed?: number
+  pinnedCount?: number
+}
 
 function createGeneratedGameState(
-  topologyParams: TopologyParams,
-  deckParams?: DeckParams,
+  topologyIndex: number,
+  options: GeneratedGameOptions = {},
 ): GameState {
-  const topology = generateTopology(topologyParams)
-  const seed = deckParams?.seed ?? topologyParams.seed ?? 0
+  const topology = getTopology(topologyIndex)
+  const seed = options.seed ?? 0
   const seats = freeSeats(topology)
-  const pinnedCount = topologyParams.pinnedCount ?? 0
+  const pinnedCount = options.pinnedCount ?? 0
 
   if (pinnedCount < 0 || pinnedCount > seats.length) {
     throw new Error(`pinnedCount must be between 0 and ${seats.length}`)
@@ -34,7 +40,11 @@ function createGeneratedGameState(
     placedCards[card.id] = card
   }
 
-  const deck = generateDeck(topology, { ...deckParams, seed, excludeCardIds: pinnedIds })
+  const deck = generateDeck(topology, {
+    ...topology.deckParams,
+    seed,
+    excludeCardIds: pinnedIds,
+  })
   const cells = topologyDefToCells(topology).map((cell) => {
     const key = cellKey(cell.row, cell.col)
     if (!pinnedSeatKeys.has(key)) return cell
@@ -52,6 +62,7 @@ function createGeneratedGameState(
     placedCards,
     status: 'playing',
     selectedCardId: null,
+    topologyIndex,
   }
 }
 

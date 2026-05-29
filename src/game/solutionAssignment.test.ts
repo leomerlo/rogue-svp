@@ -17,6 +17,7 @@ function pathTopology(): TopologyDef {
       col,
       state: 'free' as const,
     })),
+    deckParams: { wildCount: 1, bufferSize: 6 },
   }
 }
 
@@ -33,6 +34,7 @@ function ringTopology(): TopologyDef {
         state: row === 1 && col === 1 ? ('blocked' as const) : ('free' as const),
       }
     }),
+    deckParams: { wildCount: 1, bufferSize: 6 },
   }
 }
 

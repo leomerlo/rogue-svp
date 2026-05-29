@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 import { gameReducer } from './gameReducer'
+import { createGeneratedGameState } from '@/game/createGeneratedGameState'
 import { makeCard, makeCell, makeState } from '@/test/utils/factories'
 import {
   createPathInitialState,
@@ -163,6 +164,33 @@ describe('gameReducer', () => {
       expect(next.selectedCardId).toBeNull()
       expect(next.status).toBe('playing')
       expect(next.redealsLeft).toBe(4)
+    })
+  })
+
+  describe('advanceTopology', () => {
+    it('loads the next authored topology after a win', () => {
+      const won = {
+        ...createGeneratedGameState(0, { seed: 42 }),
+        status: 'won' as const,
+      }
+
+      const next = gameReducer(won, { type: 'advanceTopology' })
+
+      expect(next.topologyIndex).toBe(1)
+      expect(next.status).toBe('playing')
+      expect(next.rows).toBe(6)
+      expect(next.cols).toBe(3)
+    })
+
+    it('does nothing when the run is already complete', () => {
+      const won = {
+        ...createGeneratedGameState(11, { seed: 42 }),
+        status: 'won' as const,
+      }
+
+      const next = gameReducer(won, { type: 'advanceTopology' })
+
+      expect(next).toBe(won)
     })
   })
 })

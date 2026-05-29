@@ -30,8 +30,8 @@ function buildBufferCards(options: {
 
 function generateDeck(topology: TopologyDef, params?: DeckParams): DeckDef {
   const seed = params?.seed ?? ((Math.random() * 2 ** 32) >>> 0)
-  const bufferSize = params?.bufferSize ?? DEFAULT_BUFFER_SIZE
-  const wildCount = params?.wildCount ?? DEFAULT_WILD_COUNT
+  const bufferSize = params?.bufferSize ?? topology.deckParams.bufferSize
+  const wildCount = params?.wildCount ?? topology.deckParams.wildCount
 
   const excludeSet = new Set(params?.excludeCardIds ?? [])
   const solutionCards = buildSolutionCards(topology, seed)

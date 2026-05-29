@@ -28,6 +28,7 @@ export function makeState(
     deck?: Card[]
     status?: GameState['status']
     selectedCardId?: string | null
+    topologyIndex?: number | null
   } = {},
 ): GameState {
   return {
@@ -40,5 +41,6 @@ export function makeState(
     placedCards: options.placedCards ?? {},
     status: options.status ?? 'playing',
     selectedCardId: options.selectedCardId ?? null,
+    topologyIndex: options.topologyIndex ?? null,
   }
 }

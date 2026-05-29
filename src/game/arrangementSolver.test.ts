@@ -8,7 +8,12 @@ import { createPathInitialState } from '@/test/utils/pathLevel'
 import { createRingInitialState } from '@/test/utils/ringLevel'
 
 function pathTopology(): TopologyDef {
-  return { rows: 1, cols: 6, cells: Array.from({ length: 6 }, (_, col) => ({ row: 0, col, state: 'free' as const })) }
+  return {
+    rows: 1,
+    cols: 6,
+    cells: Array.from({ length: 6 }, (_, col) => ({ row: 0, col, state: 'free' as const })),
+    deckParams: { wildCount: 1, bufferSize: 6 },
+  }
 }
 
 function ringTopology(): TopologyDef {
@@ -20,6 +25,7 @@ function ringTopology(): TopologyDef {
       const col = i % 3
       return { row, col, state: row === 1 && col === 1 ? ('blocked' as const) : ('free' as const) }
     }),
+    deckParams: { wildCount: 1, bufferSize: 6 },
   }
 }
 
