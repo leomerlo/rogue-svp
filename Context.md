@@ -108,27 +108,27 @@ Cada carta tiene un valor en una de 6 escalones, asignado por la "rareza" de su 
 | **Consumibles** | Usos únicos (cambiar color de una mitad, rotar carta sentada, brindis = wild instantáneo). |
 | **Rituales del Anfitrión** | Habilidad activa que se carga jugando bien y se descarga en momentos clutch. Define el "estilo de juego" de la run. |
 
-### 3.3 Generación procedural de mesas
+### 3.3 Generación de mesas
 
-**Parámetros del generador:**
+**Topologías autorales (ADR-0018):**
 
-- **Topología:** grilla MxN con **patrón de celdas bloqueadas** generado proceduralmente (ADR-0001). Toda la variedad visual y mecánica viene de qué celdas se bloquean. Layouts típicos: anillo perimetral (centro bloqueado), anillo con cola, anillo doble, forma de H, mesa con isla central, ramificaciones (puentes finos entre regiones), filas independientes, etc.
-- **Mazo:** cantidad de colores en juego, proporciones, wilds, especiales.
-- **Restricciones:** asientos anclados (carta pre-colocada, inmovible — ver ADR-0016), sillas rotas (bloqueos adicionales), asientos vacíos obligatorios.
+- La topología de cada mesa es **autoralmente definida**, no generada proceduralmente. La variedad visual y mecánica viene de **dónde** se ubican las celdas bloqueadas, no de cuántas hay.
+- Todas las mesas comparten una **grilla fija de 6×3** (18 celdas). La dificultad no viene del tamaño sino del patrón de bloqueos.
+- Hay **12 topologías autorales** organizadas en secuencia fija a lo largo de la run (4 por acto). Cada topología tiene un `id`, un nombre, y sus propios `deckParams` (`wildCount`, `bufferSize`).
+- **Principio clave:** mesas más difíciles tienen *más* celdas libres (mayor grado promedio → más bordes a satisfacer simultáneamente), no menos. Una grilla casi llena con patrón de bloqueo estratégico es más difícil que una grilla dispersa con muchos bloqueos aleatorios.
 
-**Estrategia de solvability:**
+**Mazo — generación procedural:**
 
-- *Construcción inversa* para mesa base: generar una solución válida y derivar el mazo desde ahí. Garantiza solvability.
-- *Generate-and-test* para validar modificadores raros (relics que alteran el generador).
+- El mazo se sigue generando proceduralmente mediante *construcción inversa*: se genera una solución válida para la topología y se deriva el mazo desde ahí. Garantiza solvability.
+- La variedad entre runs viene del mazo generado sobre la misma topología, no de cambios de topología.
+- Los parámetros de mazo (`wildCount`, `bufferSize`) están definidos por topología, no por bandas de dificultad métricas.
 
-**Calibración de dificultad** (métricas para clasificar mesas):
+**Asientos anclados:**
 
-- Cantidad de soluciones válidas
-- Grado promedio del grafo
-- Ratio wilds/asientos
-- Cuellos de botella topológicos
+- Después de encontrar la solución, algunos asientos se promueven a *anclados* (carta pre-colocada, inmovible) de forma procedural — ver ADR-0016.
+- Las posiciones de anclaje no son autorales; la variación corre por cuenta del generador.
 
-> El generador apunta a un *target* de dificultad y rechaza fuera de rango.
+> Las bandas de dificultad métricas (ADR-0017) quedan superadas para la selección de topología. Sólo aplican opcionalmente para diagnóstico.
 
 ---
 
@@ -311,7 +311,7 @@ Para una versión jugable inicial:
 - [ ] Voz del narrador omnisciente: tono, tics, vocabulario base
 - [ ] 10-15 invitados especiales mecánicos
 - [ ] 8-12 relics
-- [ ] 4-6 topologías de mesa base
+- [ ] 12 topologías de mesa autorales (grilla 6×3, secuencia fija por run, 4 por acto)
 - [ ] 1 anfitrión jugable inicial
 
 > **Orden recomendado de escritura:** arquetipos → voz del narrador → primeros eventos → hilos troncales.
