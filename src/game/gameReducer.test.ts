@@ -6,6 +6,8 @@ import {
   PATH_SOLUTION,
 } from '@/test/utils/pathLevel'
 import { createRingInitialState } from '@/test/utils/ringLevel'
+import { createCalibratedGeneratedGameState } from '@/game/createGameStateFromMesa'
+import { findValidArrangement } from '@/game/arrangementSolver'
 import type { GameAction } from './types'
 
 describe('gameReducer', () => {
@@ -148,6 +150,38 @@ describe('gameReducer', () => {
       const next = gameReducer(modified, { type: 'changeLevel', level: 'ring' })
 
       expect(next).toEqual(createRingInitialState())
+    })
+
+    it('changeLevel to generated uses difficultyTarget for calibrated mesas', () => {
+      const next = gameReducer(createPathInitialState(), {
+        type: 'changeLevel',
+        level: 'generated',
+        difficultyTarget: 5,
+      })
+
+      const expected = createCalibratedGeneratedGameState(5, { seed: 42, pinnedCount: 1 })
+      expect(next).toEqual(expected)
+
+      const topology = {
+        rows: next.rows,
+        cols: next.cols,
+        cells: next.cells.map(({ row, col, state }) => ({ row, col, state })),
+      }
+      expect(findValidArrangement(topology, [...next.hand, ...next.deck])).not.toBeNull()
+    })
+
+    it('changeLevel to generated defaults to difficulty 3', () => {
+      const withDefault = gameReducer(createPathInitialState(), {
+        type: 'changeLevel',
+        level: 'generated',
+      })
+      const withExplicit = gameReducer(createPathInitialState(), {
+        type: 'changeLevel',
+        level: 'generated',
+        difficultyTarget: 3,
+      })
+
+      expect(withDefault).toEqual(withExplicit)
     })
 
     it('changeLevel clears in-progress play from the previous table', () => {

@@ -42,7 +42,7 @@ type GameAction =
   | { type: 'swapCard'; move: Swap }
   | { type: 'resetGame' }
   | { type: 'reDeal' }
-  | { type: 'changeLevel'; level: 'path' | 'ring' | 'generated' }
+  | { type: 'changeLevel'; level: 'path' | 'ring' | 'generated'; difficultyTarget?: DifficultyTarget }
 
 type ActionOf<T extends GameAction['type']> = Extract<GameAction, { type: T }>
 
@@ -77,4 +77,24 @@ interface DeckDef {
   cards: Card[];
 }
 
-export type { ActionOf, Card, Cell, CellState, Color, DeckDef, DeckParams, GameAction, GameState, InteractionAction, Place, RegularColor, Side, Swap, TopologyDef, TopologyParams };
+type DifficultyTarget = 1 | 2 | 3 | 4 | 5;
+
+interface MesaMetrics {
+  solutionCount: number;
+  solutionCountCapped: boolean;
+  wildRatio: number;
+  bottleneckCount: number;
+  avgSeatDegree: number;
+}
+
+interface GenerateMesaParams {
+  rows?: number;
+  cols?: number;
+  targetFreeSeats?: number;
+  seed?: number;
+  attemptBudget?: number;
+  bufferSize?: number;
+  wildCount?: number;
+}
+
+export type { ActionOf, Card, Cell, CellState, Color, DeckDef, DeckParams, DifficultyTarget, GameAction, GameState, GenerateMesaParams, InteractionAction, MesaMetrics, Place, RegularColor, Side, Swap, TopologyDef, TopologyParams };
