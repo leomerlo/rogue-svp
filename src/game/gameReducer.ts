@@ -1,6 +1,6 @@
 import type { GameState, GameAction } from '@/game/types'
 import { selectCard, deselectCard, applyMove, reDealCards, swapCard } from '@/game/movement'
-import { createGeneratedGameState } from '@/game/createGeneratedGameState'
+import { createCalibratedGeneratedGameState } from '@/game/createGameStateFromMesa'
 import { createPathInitialState } from '@/test/utils/pathLevel'
 import { createRingInitialState } from '@/test/utils/ringLevel'
 
@@ -22,7 +22,11 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       switch (action.level) {
         case 'path': return createPathInitialState()
         case 'ring': return createRingInitialState()
-        case 'generated': return createGeneratedGameState({ rows: 4, cols: 4, seed: 42, pinnedCount: 1 })
+        case 'generated':
+          return createCalibratedGeneratedGameState(action.difficultyTarget ?? 3, {
+            seed: 42,
+            pinnedCount: 1,
+          })
         default: return state
       }
     default:
