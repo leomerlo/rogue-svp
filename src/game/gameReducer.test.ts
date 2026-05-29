@@ -178,8 +178,8 @@ describe('gameReducer', () => {
 
       expect(next.topologyIndex).toBe(1)
       expect(next.status).toBe('playing')
-      expect(next.rows).toBe(6)
-      expect(next.cols).toBe(3)
+      expect(next.rows).toBe(3)
+      expect(next.cols).toBe(6)
     })
 
     it('does nothing when the run is already complete', () => {
