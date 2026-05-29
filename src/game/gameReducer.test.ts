@@ -1,13 +1,12 @@
 import { describe, expect, it, vi } from 'vitest'
 import { gameReducer } from './gameReducer'
+import { createGeneratedGameState } from '@/game/createGeneratedGameState'
 import { makeCard, makeCell, makeState } from '@/test/utils/factories'
 import {
   createPathInitialState,
   PATH_SOLUTION,
 } from '@/test/utils/pathLevel'
 import { createRingInitialState } from '@/test/utils/ringLevel'
-import { createCalibratedGeneratedGameState } from '@/game/createGameStateFromMesa'
-import { findValidArrangement } from '@/game/arrangementSolver'
 import type { GameAction } from './types'
 
 describe('gameReducer', () => {
@@ -152,36 +151,14 @@ describe('gameReducer', () => {
       expect(next).toEqual(createRingInitialState())
     })
 
-    it('changeLevel to generated uses difficultyTarget for calibrated mesas', () => {
+    it('changeLevel to generated starts the authored run at topology 0', () => {
       const next = gameReducer(createPathInitialState(), {
         type: 'changeLevel',
         level: 'generated',
-        difficultyTarget: 5,
       })
 
-      const expected = createCalibratedGeneratedGameState(5, { seed: 42, pinnedCount: 1 })
+      const expected = createGeneratedGameState(0, { seed: 42, pinnedCount: 1 })
       expect(next).toEqual(expected)
-
-      const topology = {
-        rows: next.rows,
-        cols: next.cols,
-        cells: next.cells.map(({ row, col, state }) => ({ row, col, state })),
-      }
-      expect(findValidArrangement(topology, [...next.hand, ...next.deck])).not.toBeNull()
-    })
-
-    it('changeLevel to generated defaults to difficulty 3', () => {
-      const withDefault = gameReducer(createPathInitialState(), {
-        type: 'changeLevel',
-        level: 'generated',
-      })
-      const withExplicit = gameReducer(createPathInitialState(), {
-        type: 'changeLevel',
-        level: 'generated',
-        difficultyTarget: 3,
-      })
-
-      expect(withDefault).toEqual(withExplicit)
     })
 
     it('changeLevel clears in-progress play from the previous table', () => {
@@ -197,6 +174,33 @@ describe('gameReducer', () => {
       expect(next.selectedCardId).toBeNull()
       expect(next.status).toBe('playing')
       expect(next.redealsLeft).toBe(4)
+    })
+  })
+
+  describe('advanceTopology', () => {
+    it('loads the next authored topology after a win', () => {
+      const won = {
+        ...createGeneratedGameState(0, { seed: 42 }),
+        status: 'won' as const,
+      }
+
+      const next = gameReducer(won, { type: 'advanceTopology' })
+
+      expect(next.topologyIndex).toBe(1)
+      expect(next.status).toBe('playing')
+      expect(next.rows).toBe(3)
+      expect(next.cols).toBe(6)
+    })
+
+    it('does nothing when the run is already complete', () => {
+      const won = {
+        ...createGeneratedGameState(11, { seed: 42 }),
+        status: 'won' as const,
+      }
+
+      const next = gameReducer(won, { type: 'advanceTopology' })
+
+      expect(next).toBe(won)
     })
   })
 })

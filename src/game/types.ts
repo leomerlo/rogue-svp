@@ -26,6 +26,7 @@ interface GameState {
   placedCards: Record<string, Card>;
   status: 'playing' | 'won' | 'lost';
   selectedCardId: string | null;
+  topologyIndex: number | null;
 }
 
 type Place = { cardId: string; row: number; col: number }
@@ -42,7 +43,8 @@ type GameAction =
   | { type: 'swapCard'; move: Swap }
   | { type: 'resetGame' }
   | { type: 'reDeal' }
-  | { type: 'changeLevel'; level: 'path' | 'ring' | 'generated'; difficultyTarget?: DifficultyTarget }
+  | { type: 'changeLevel'; level: 'path' | 'ring' | 'generated' }
+  | { type: 'advanceTopology' }
 
 type ActionOf<T extends GameAction['type']> = Extract<GameAction, { type: T }>
 
@@ -64,6 +66,7 @@ interface TopologyDef {
   rows: number;
   cols: number;
   cells: Array<{ row: number; col: number; state: CellState }>;
+  deckParams?: { wildCount: number; bufferSize: number };
 }
 
 interface DeckParams {

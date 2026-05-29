@@ -1,20 +1,27 @@
-import type { DeckParams, GameState, TopologyParams } from '@/game/types'
+import type { GameState } from '@/game/types'
 import { createGameStateFromMesa } from '@/game/createGameStateFromMesa'
 import { generateDeck } from '@/game/deck'
-import { generateTopology } from '@/game/topology'
+import { getTopology } from '@/game/topologies'
+
+type GeneratedGameOptions = {
+  seed?: number
+  pinnedCount?: number
+}
 
 function createGeneratedGameState(
-  topologyParams: TopologyParams,
-  deckParams?: DeckParams,
+  topologyIndex: number,
+  options: GeneratedGameOptions = {},
 ): GameState {
-  const topology = generateTopology(topologyParams)
-  const seed = deckParams?.seed ?? topologyParams.seed ?? 0
-  const deck = generateDeck(topology, { ...deckParams, seed })
+  const topology = getTopology(topologyIndex)
+  const seed = options.seed ?? 0
+  const deck = generateDeck(topology, { ...topology.deckParams, seed })
 
-  return createGameStateFromMesa(topology, deck, {
+  const state = createGameStateFromMesa(topology, deck, {
     deckSeed: seed,
-    pinnedCount: topologyParams.pinnedCount ?? 0,
+    pinnedCount: options.pinnedCount ?? 0,
   })
+
+  return { ...state, topologyIndex }
 }
 
 export { createGeneratedGameState }

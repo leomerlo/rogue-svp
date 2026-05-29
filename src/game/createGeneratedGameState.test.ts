@@ -2,27 +2,29 @@ import { describe, expect, it } from 'vitest'
 import { isSolved } from '@/game/helpers'
 import { findValidArrangement } from '@/game/arrangementSolver'
 import { createGeneratedGameState } from '@/game/createGeneratedGameState'
+import { GRID_COLS, GRID_ROWS } from '@/game/topologies'
 import { freeSeats, seatKey } from '@/game/solutionAssignment'
 import { makeState } from '@/test/utils/factories'
 
 describe('createGeneratedGameState', () => {
-  it('builds a playable state with correct hand and deck sizes', () => {
-    const state = createGeneratedGameState({ rows: 4, cols: 4, seed: 42 })
+  it('builds a playable state from an authored topology', () => {
+    const state = createGeneratedGameState(0, { seed: 42 })
 
-    expect(state.rows).toBe(4)
-    expect(state.cols).toBe(4)
+    expect(state.rows).toBe(GRID_ROWS)
+    expect(state.cols).toBe(GRID_COLS)
+    expect(state.topologyIndex).toBe(0)
     expect(state.cells.every((c) => c.state !== 'free' || c.cardId === null)).toBe(true)
     expect(state.hand).toHaveLength(3)
     expect(state.redealsLeft).toBe(4)
     expect(state.status).toBe('playing')
 
     const freeCount = state.cells.filter((c) => c.state === 'free').length
-    expect(state.hand.length + state.deck.length).toBe(freeCount + 6)
-    expect(state.deck.length).toBe(freeCount + 6 - 3)
+    expect(state.hand.length + state.deck.length).toBe(freeCount + 8)
+    expect(state.deck.length).toBe(freeCount + 8 - 3)
   })
 
   it('supports a solver-found winning placement', () => {
-    const state = createGeneratedGameState({ rows: 4, cols: 4, seed: 7 })
+    const state = createGeneratedGameState(0, { seed: 7 })
     const allCards = [...state.hand, ...state.deck]
     const topology = {
       rows: state.rows,
@@ -32,6 +34,7 @@ describe('createGeneratedGameState', () => {
         col,
         state: cellState,
       })),
+      deckParams: { wildCount: 1, bufferSize: 8 },
     }
 
     const arrangement = findValidArrangement(topology, allCards)
@@ -53,9 +56,9 @@ describe('createGeneratedGameState', () => {
   })
 
   it('is deterministic for pinned seats with the same seed', () => {
-    const params = { rows: 4, cols: 4, seed: 42, pinnedCount: 2 }
-    const a = createGeneratedGameState(params)
-    const b = createGeneratedGameState(params)
+    const params = { seed: 42, pinnedCount: 2 }
+    const a = createGeneratedGameState(0, params)
+    const b = createGeneratedGameState(0, params)
 
     const pinnedA = a.cells.filter((c) => c.state === 'pinned')
     const pinnedB = b.cells.filter((c) => c.state === 'pinned')
@@ -65,7 +68,7 @@ describe('createGeneratedGameState', () => {
   })
 
   it('places pinned cards in placedCards and excludes them from hand and deck', () => {
-    const state = createGeneratedGameState({ rows: 4, cols: 4, seed: 7, pinnedCount: 2 })
+    const state = createGeneratedGameState(0, { seed: 7, pinnedCount: 2 })
     const pinned = state.cells.filter((c) => c.state === 'pinned')
 
     expect(pinned).toHaveLength(2)
@@ -81,14 +84,14 @@ describe('createGeneratedGameState', () => {
   })
 
   it('keeps correct deck size when pins are present', () => {
-    const state = createGeneratedGameState({ rows: 4, cols: 4, seed: 11, pinnedCount: 3 })
+    const state = createGeneratedGameState(0, { seed: 11, pinnedCount: 3 })
     const freeCount = state.cells.filter((c) => c.state === 'free').length
 
-    expect(state.hand.length + state.deck.length).toBe(freeCount + 6)
+    expect(state.hand.length + state.deck.length).toBe(freeCount + 8)
   })
 
   it('supports a solver-found winning placement with pinned cells', () => {
-    const state = createGeneratedGameState({ rows: 4, cols: 4, seed: 9, pinnedCount: 2 })
+    const state = createGeneratedGameState(0, { seed: 9, pinnedCount: 2 })
     const allCards = [...state.hand, ...state.deck]
     const topology = {
       rows: state.rows,
@@ -98,6 +101,7 @@ describe('createGeneratedGameState', () => {
         col,
         state: cellState,
       })),
+      deckParams: { wildCount: 1, bufferSize: 8 },
     }
 
     const fixedBySeat = new Map(
@@ -120,5 +124,9 @@ describe('createGeneratedGameState', () => {
 
     const solved = makeState(state.rows, state.cols, cells, { placedCards })
     expect(isSolved(solved)).toBe(true)
+  })
+
+  it('throws for an out-of-range topology index', () => {
+    expect(() => createGeneratedGameState(12)).toThrow()
   })
 })

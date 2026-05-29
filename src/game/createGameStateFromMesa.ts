@@ -70,6 +70,7 @@ function createGameStateFromMesa(
     placedCards,
     status: 'playing',
     selectedCardId: null,
+    topologyIndex: null,
   }
 }
 
