@@ -1,11 +1,10 @@
 import type { GameState } from '@/game/types'
+import { shuffleAuthoredDeck } from '@/game/authoredDeck'
 import { createGameStateFromMesa } from '@/game/createGameStateFromMesa'
-import { generateDeck } from '@/game/deck'
 import { getTopology } from '@/game/topologies'
 
 type GeneratedGameOptions = {
   seed?: number
-  pinnedCount?: number
 }
 
 function createGeneratedGameState(
@@ -14,11 +13,10 @@ function createGeneratedGameState(
 ): GameState {
   const topology = getTopology(topologyIndex)
   const seed = options.seed ?? 0
-  const deck = generateDeck(topology, { ...topology.deckParams, seed })
+  const deckCards = shuffleAuthoredDeck(seed)
 
-  const state = createGameStateFromMesa(topology, deck, {
+  const state = createGameStateFromMesa(topology, deckCards, {
     deckSeed: seed,
-    pinnedCount: options.pinnedCount ?? 0,
   })
 
   return { ...state, topologyIndex }

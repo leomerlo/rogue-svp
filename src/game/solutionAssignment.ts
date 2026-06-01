@@ -1,4 +1,4 @@
-import type { Card, RegularColor, TopologyDef } from '@/game/types'
+import type { RegularColor, TopologyDef } from '@/game/types'
 import { cellKey } from '@/game/helpers'
 import { seededRandom, shuffled } from '@/game/seededRandom'
 
@@ -118,33 +118,10 @@ function buildSolutionAssignment(
   return buildSolutionAssignmentInternal(seats, freeSet, topology, seed)
 }
 
-function buildSolutionCards(topology: TopologyDef, seed: number): Card[] {
-  const seats = freeSeats(topology)
-  const freeSet = new Set(seats.map((s) => cellKey(s.row, s.col)))
-  const maxAttempts = 32
-
-  for (let attempt = 0; attempt < maxAttempts; attempt++) {
-    const assignment = buildSolutionAssignmentInternal(seats, freeSet, topology, seed + attempt)
-    if (assignment === null) continue
-
-    return seats.map((seat, index) => {
-      const { colorA, colorB } = assignment.get(cellKey(seat.row, seat.col))!
-      return {
-        id: `gen-${seed}-${index}`,
-        colorA,
-        colorB,
-      }
-    })
-  }
-
-  throw new Error(`Failed to build solution assignment for topology (seed=${seed})`)
-}
-
 export {
   REGULAR_COLORS,
   freeSeats,
   neighborSeats,
   buildSolutionAssignment,
-  buildSolutionCards,
   cellKey as seatKey,
 }

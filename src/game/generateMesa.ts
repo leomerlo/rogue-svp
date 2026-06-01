@@ -3,10 +3,10 @@ import {
   maxSolutionCountForBand,
   metricsInBand,
 } from '@/game/difficultyBands'
-import { generateDeck } from '@/game/deck'
+import { AUTHORED_DECK } from '@/game/authoredDeck'
 import { computeMesaMetrics } from '@/game/mesaMetrics'
 import { generateTopology } from '@/game/topology'
-import type { DeckDef, DifficultyTarget, GenerateMesaParams, TopologyDef } from '@/game/types'
+import type { DifficultyTarget, GenerateMesaParams, TopologyDef } from '@/game/types'
 
 const DEFAULT_ROWS = 4
 const DEFAULT_COLS = 4
@@ -66,16 +66,15 @@ function resolveAttemptConfig(
 }
 
 /**
- * Generate a topology + deck whose metrics fall within the difficulty band.
+ * Generate a topology whose metrics fall within the difficulty band.
  *
- * Uses generate-and-test: each attempt builds a candidate, computes metrics,
- * and accepts on first match. When `attemptBudget` is exhausted without a
- * match, returns the candidate closest to the band midpoint (fallback).
- * Fallback output is always solvable (inverse deck construction).
+ * Uses generate-and-test: each attempt builds a candidate topology, computes
+ * metrics against the authored deck, and accepts on first match. When
+ * `attemptBudget` is exhausted without a match, returns the candidate closest
+ * to the band midpoint (fallback).
  */
 type GeneratedMesa = {
   topology: TopologyDef
-  deck: DeckDef
   deckSeed: number
 }
 
@@ -112,23 +111,18 @@ function generateMesa(
       targetFreeSeats,
       seed: topologySeed,
     })
-    const deck = generateDeck(topology, {
-      seed: deckSeed,
-      bufferSize,
-      wildCount,
-    })
-    const metrics = computeMesaMetrics(topology, deck, {
+    const metrics = computeMesaMetrics(topology, AUTHORED_DECK, {
       maxSolutionCount: maxSolutionCountForBand(difficultyTarget),
     })
 
     if (metricsInBand(metrics, difficultyTarget)) {
-      return { topology, deck, deckSeed }
+      return { topology, deckSeed }
     }
 
     const distance = distanceToBand(metrics, difficultyTarget)
     if (distance < bestDistance) {
       bestDistance = distance
-      best = { topology, deck, deckSeed }
+      best = { topology, deckSeed }
     }
   }
 
@@ -146,12 +140,7 @@ function generateMesa(
       targetFreeSeats: fallbackConfig.targetFreeSeats,
       seed: topologySeed,
     })
-    const deck = generateDeck(topology, {
-      seed: deckSeed,
-      wildCount: fallbackConfig.wildCount,
-      bufferSize: fallbackConfig.bufferSize,
-    })
-    return { topology, deck, deckSeed }
+    return { topology, deckSeed }
   }
 
   return best

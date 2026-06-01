@@ -1,5 +1,5 @@
 import { countValidArrangements, DEFAULT_MAX_COUNT } from '@/game/arrangementSolver'
-import type { DeckDef, MesaMetrics, TopologyDef } from '@/game/types'
+import type { Card, MesaMetrics, TopologyDef } from '@/game/types'
 import { freeSeats, neighborSeats } from '@/game/solutionAssignment'
 
 function countWilds(cards: { colorA: string }[]): number {
@@ -29,16 +29,16 @@ function computeTopologyMetrics(topology: TopologyDef): {
 
 function computeMesaMetrics(
   topology: TopologyDef,
-  deck: DeckDef,
+  cards: Card[],
   options?: { maxSolutionCount?: number },
 ): MesaMetrics {
   const maxSolutionCount = options?.maxSolutionCount ?? DEFAULT_MAX_COUNT
-  const { count, capped } = countValidArrangements(topology, deck.cards, {
+  const { count, capped } = countValidArrangements(topology, cards, {
     maxCount: maxSolutionCount,
   })
   const { bottleneckCount, avgSeatDegree } = computeTopologyMetrics(topology)
-  const deckSize = deck.cards.length
-  const wildRatio = deckSize === 0 ? 0 : countWilds(deck.cards) / deckSize
+  const deckSize = cards.length
+  const wildRatio = deckSize === 0 ? 0 : countWilds(cards) / deckSize
 
   return {
     solutionCount: count,

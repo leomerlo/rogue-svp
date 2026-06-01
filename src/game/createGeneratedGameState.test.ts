@@ -18,9 +18,8 @@ describe('createGeneratedGameState', () => {
     expect(state.redealsLeft).toBe(4)
     expect(state.status).toBe('playing')
 
-    const freeCount = state.cells.filter((c) => c.state === 'free').length
-    expect(state.hand.length + state.deck.length).toBe(freeCount + 8)
-    expect(state.deck.length).toBe(freeCount + 8 - 3)
+    expect(state.hand.length + state.deck.length).toBe(67)
+    expect(state.deck.length).toBe(64)
   })
 
   it('supports a solver-found winning placement', () => {
@@ -34,7 +33,6 @@ describe('createGeneratedGameState', () => {
         col,
         state: cellState,
       })),
-      deckParams: { wildCount: 1, bufferSize: 8 },
     }
 
     const arrangement = findValidArrangement(topology, allCards)
@@ -56,9 +54,9 @@ describe('createGeneratedGameState', () => {
   })
 
   it('is deterministic for pinned seats with the same seed', () => {
-    const params = { seed: 42, pinnedCount: 2 }
-    const a = createGeneratedGameState(0, params)
-    const b = createGeneratedGameState(0, params)
+    const params = { seed: 42 }
+    const a = createGeneratedGameState(4, params)
+    const b = createGeneratedGameState(4, params)
 
     const pinnedA = a.cells.filter((c) => c.state === 'pinned')
     const pinnedB = b.cells.filter((c) => c.state === 'pinned')
@@ -68,7 +66,7 @@ describe('createGeneratedGameState', () => {
   })
 
   it('places pinned cards in placedCards and excludes them from hand and deck', () => {
-    const state = createGeneratedGameState(0, { seed: 7, pinnedCount: 2 })
+    const state = createGeneratedGameState(4, { seed: 7 })
     const pinned = state.cells.filter((c) => c.state === 'pinned')
 
     expect(pinned).toHaveLength(2)
@@ -84,14 +82,13 @@ describe('createGeneratedGameState', () => {
   })
 
   it('keeps correct deck size when pins are present', () => {
-    const state = createGeneratedGameState(0, { seed: 11, pinnedCount: 3 })
-    const freeCount = state.cells.filter((c) => c.state === 'free').length
+    const state = createGeneratedGameState(5, { seed: 11 })
 
-    expect(state.hand.length + state.deck.length).toBe(freeCount + 8)
+    expect(state.hand.length + state.deck.length).toBe(67 - 3)
   })
 
   it('supports a solver-found winning placement with pinned cells', () => {
-    const state = createGeneratedGameState(0, { seed: 9, pinnedCount: 2 })
+    const state = createGeneratedGameState(4, { seed: 9 })
     const allCards = [...state.hand, ...state.deck]
     const topology = {
       rows: state.rows,
@@ -101,7 +98,6 @@ describe('createGeneratedGameState', () => {
         col,
         state: cellState,
       })),
-      deckParams: { wildCount: 1, bufferSize: 8 },
     }
 
     const fixedBySeat = new Map(
@@ -127,6 +123,6 @@ describe('createGeneratedGameState', () => {
   })
 
   it('throws for an out-of-range topology index', () => {
-    expect(() => createGeneratedGameState(12)).toThrow()
+    expect(() => createGeneratedGameState(6)).toThrow()
   })
 })
