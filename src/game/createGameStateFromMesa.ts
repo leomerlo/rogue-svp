@@ -1,15 +1,16 @@
 import type {
   Card,
-  DeckDef,
   DifficultyTarget,
   GameState,
   GenerateMesaParams,
   TopologyDef,
 } from '@/game/types'
+import { findValidArrangement } from '@/game/arrangementSolver'
+import { shuffleAuthoredDeck } from '@/game/authoredDeck'
 import { cellKey } from '@/game/helpers'
 import { generateMesa } from '@/game/generateMesa'
 import { seededRandom, shuffled } from '@/game/seededRandom'
-import { buildSolutionCards, freeSeats, seatKey } from '@/game/solutionAssignment'
+import { freeSeats, seatKey } from '@/game/solutionAssignment'
 import { topologyDefToCells } from '@/game/topology'
 
 interface CreateGameStateFromMesaParams {
@@ -25,21 +26,27 @@ interface CreateCalibratedGeneratedGameStateParams {
 
 function createGameStateFromMesa(
   topology: TopologyDef,
-  deck: DeckDef,
+  deckCards: Card[],
   params: CreateGameStateFromMesaParams,
 ): GameState {
   const { deckSeed } = params
-  const pinnedCount = params.pinnedCount ?? 0
+  const pinnedCount = params.pinnedCount ?? topology.pinnedCount
   const seats = freeSeats(topology)
 
   if (pinnedCount < 0 || pinnedCount > seats.length) {
     throw new Error(`pinnedCount must be between 0 and ${seats.length}`)
   }
 
-  const solutionCards = buildSolutionCards(topology, deckSeed)
+  const arrangement = findValidArrangement(topology, deckCards)
   const cardBySeat = new Map<string, Card>()
-  for (let i = 0; i < seats.length; i++) {
-    cardBySeat.set(seatKey(seats[i]!.row, seats[i]!.col), solutionCards[i]!)
+
+  if (arrangement) {
+    const cardsById = new Map(deckCards.map((card) => [card.id, card]))
+    for (const [key, cardId] of arrangement) {
+      cardBySeat.set(key, cardsById.get(cardId)!)
+    }
+  } else if (pinnedCount > 0) {
+    throw new Error('No valid arrangement found for pinned seat placement')
   }
 
   const pinnedSeats = shuffled(seats, seededRandom(deckSeed + 3000)).slice(0, pinnedCount)
@@ -52,7 +59,7 @@ function createGameStateFromMesa(
     placedCards[card.id] = card
   }
 
-  const playableCards = deck.cards.filter((card) => !pinnedIds.includes(card.id))
+  const playableCards = deckCards.filter((card) => !pinnedIds.includes(card.id))
   const cells = topologyDefToCells(topology).map((cell) => {
     const key = cellKey(cell.row, cell.col)
     if (!pinnedSeatKeys.has(key)) return cell
@@ -79,12 +86,13 @@ function createCalibratedGeneratedGameState(
   params?: CreateCalibratedGeneratedGameStateParams,
 ): GameState {
   const seed = params?.seed ?? 42
-  const { topology, deck, deckSeed } = generateMesa(difficultyTarget, {
+  const { topology, deckSeed } = generateMesa(difficultyTarget, {
     seed,
     ...params?.mesaParams,
   })
+  const deckCards = shuffleAuthoredDeck(deckSeed)
 
-  return createGameStateFromMesa(topology, deck, {
+  return createGameStateFromMesa(topology, deckCards, {
     deckSeed,
     pinnedCount: params?.pinnedCount ?? 0,
   })

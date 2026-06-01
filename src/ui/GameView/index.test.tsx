@@ -61,7 +61,6 @@ describe('GameView', () => {
         col,
         state: cellState,
       })),
-      deckParams: { wildCount: 1, bufferSize: 8 },
     }
     const fixedBySeat = new Map(
       state.cells

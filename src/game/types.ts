@@ -66,28 +66,7 @@ interface TopologyDef {
   rows: number;
   cols: number;
   cells: Array<{ row: number; col: number; state: CellState }>;
-  deckParams?: { wildCount: number; bufferSize: number };
-}
-
-interface DeckParams {
-  seed?: number;
-  bufferSize?: number;
-  wildCount?: number;
-  excludeCardIds?: string[];
-}
-
-interface DeckDef {
-  cards: Card[];
-}
-
-type DifficultyTarget = 1 | 2 | 3 | 4 | 5;
-
-interface MesaMetrics {
-  solutionCount: number;
-  solutionCountCapped: boolean;
-  wildRatio: number;
-  bottleneckCount: number;
-  avgSeatDegree: number;
+  pinnedCount: number;
 }
 
 interface GenerateMesaParams {
@@ -100,4 +79,14 @@ interface GenerateMesaParams {
   wildCount?: number;
 }
 
-export type { ActionOf, Card, Cell, CellState, Color, DeckDef, DeckParams, DifficultyTarget, GameAction, GameState, GenerateMesaParams, InteractionAction, MesaMetrics, Place, RegularColor, Side, Swap, TopologyDef, TopologyParams };
+type DifficultyTarget = 1 | 2 | 3 | 4 | 5;
+
+interface MesaMetrics {
+  solutionCount: number;
+  solutionCountCapped: boolean;
+  wildRatio: number;
+  bottleneckCount: number;
+  avgSeatDegree: number;
+}
+
+export type { ActionOf, Card, Cell, CellState, Color, DifficultyTarget, GameAction, GameState, GenerateMesaParams, InteractionAction, MesaMetrics, Place, RegularColor, Side, Swap, TopologyDef, TopologyParams };

@@ -48,11 +48,11 @@ La capa narrativa cuenta una **saga generacional** de comedia/drama al estilo *P
 
 - El jugador ve **3 cartas a la vez** (la mano visible), tomadas del tope del mazo.
 - Al sentar una carta, se roba inmediatamente la siguiente del mazo, manteniendo la mano en 3.
-- No se pueden descartar cartas individualmente — el único descarte es el re-deal (§2.3).
+- No existe mecánica de descarte. La única forma de cambiar la mano sin sentar es el re-deal (§2.3), que devuelve las cartas al mazo en vez de eliminarlas.
 
 ### 2.3 Re-deal
 
-- El jugador puede **descartar las 3 cartas visibles** y recibir 3 nuevas del mazo.
+- El jugador puede **devolver las 3 cartas visibles al mazo, barajarlo** y recibir 3 nuevas. No es un descarte: las cartas vuelven al pool y pueden re-aparecer en futuras manos o re-deals.
 - **Límite por fiesta:** 4 re-deals (valor base, modificable por relics o anfitrión).
 - **Coste:** cada re-deal resta **5 puntos** del puntaje de la fiesta.
 
@@ -104,7 +104,7 @@ Cada carta tiene un valor en una de 6 escalones, asignado por la "rareza" de su 
 | Mejora | Descripción |
 |--------|-------------|
 | **Invitados especiales** | Cartas con efectos (camaleón, alma de la fiesta, tímido, chismoso, etc.) que se suman al **extras inventory** del jugador (ADR-0008). Se invitan como "+1" a las fiestas, fuera del core obligatorio. |
-| **Relics** | Efectos pasivos permanentes para la run (+1 descarte, ver próximas cartas, wild gratis al iniciar, etc.). |
+| **Relics** | Efectos pasivos permanentes para la run (+1 re-deal, ver próximas cartas, wild gratis al iniciar, etc.). |
 | **Consumibles** | Usos únicos (cambiar color de una mitad, rotar carta sentada, brindis = wild instantáneo). |
 | **Rituales del Anfitrión** | Habilidad activa que se carga jugando bien y se descarga en momentos clutch. Define el "estilo de juego" de la run. |
 
