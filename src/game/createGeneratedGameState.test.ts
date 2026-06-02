@@ -16,6 +16,9 @@ describe('createGeneratedGameState', () => {
     expect(state.cells.every((c) => c.state !== 'free' || c.cardId === null)).toBe(true)
     expect(state.hand).toHaveLength(3)
     expect(state.redealsLeft).toBe(4)
+    expect(state.initialRedealsLeft).toBe(4)
+    expect(state.relicsActive).toEqual([])
+    expect(state.deckPeek).toEqual([])
     expect(state.status).toBe('playing')
 
     expect(state.hand.length + state.deck.length).toBe(67)

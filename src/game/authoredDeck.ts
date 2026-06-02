@@ -102,8 +102,17 @@ function shuffleAuthoredDeck(seed: number): Card[] {
   return shuffled(AUTHORED_DECK, seededRandom(seed))
 }
 
+function getCardValue(card: Card): number {
+  const match = /^authored-(\d+)$/.exec(card.id)
+  if (match) {
+    return AUTHORED_CARD_DEFS[Number(match[1])]![0]
+  }
+  return 0
+}
+
 export {
   AUTHORED_CARD_DEFS,
   AUTHORED_DECK,
+  getCardValue,
   shuffleAuthoredDeck,
 }

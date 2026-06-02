@@ -1,10 +1,11 @@
-import type { GameState } from '@/game/types'
+import type { GameState, RelicId } from '@/game/types'
 import { shuffleAuthoredDeck } from '@/game/authoredDeck'
 import { createGameStateFromMesa } from '@/game/createGameStateFromMesa'
 import { getTopology } from '@/game/topologies'
 
 type GeneratedGameOptions = {
   seed?: number
+  relicsActive?: RelicId[]
 }
 
 function createGeneratedGameState(
@@ -17,6 +18,7 @@ function createGeneratedGameState(
 
   const state = createGameStateFromMesa(topology, deckCards, {
     deckSeed: seed,
+    relicsActive: options.relicsActive,
   })
 
   return { ...state, topologyIndex }
