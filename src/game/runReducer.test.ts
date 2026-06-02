@@ -38,10 +38,10 @@ describe('runReducer', () => {
   it('applyRelic appends relic ids', () => {
     let state = createRunState('seed')
 
-    state = runReducer(state, { type: 'applyRelic', relicId: 'relic-a' })
-    state = runReducer(state, { type: 'applyRelic', relicId: 'relic-b' })
+    state = runReducer(state, { type: 'applyRelic', relicId: 'extra_redeal' })
+    state = runReducer(state, { type: 'applyRelic', relicId: 'peek_5' })
 
-    expect(state.relicsActive).toEqual(['relic-a', 'relic-b'])
+    expect(state.relicsActive).toEqual(['extra_redeal', 'peek_5'])
   })
 
   it('advanceLevel accumulates mesa scores', () => {
@@ -58,7 +58,7 @@ describe('runReducer', () => {
   it('newRun resets to a fresh RunState with the given seed', () => {
     let state = createRunState('old-seed')
     state = runReducer(state, { type: 'advanceLevel', mesaScore: 50 })
-    state = runReducer(state, { type: 'applyRelic', relicId: 'relic-x' })
+    state = runReducer(state, { type: 'applyRelic', relicId: 'score_streak' })
     state = runReducer(state, { type: 'endRunLoss' })
 
     const next = runReducer(state, { type: 'newRun', seed: 'new-seed' })

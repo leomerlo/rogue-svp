@@ -29,6 +29,11 @@ export function makeState(
     status?: GameState['status']
     selectedCardId?: string | null
     topologyIndex?: number | null
+    redealsLeft?: number
+    initialRedealsLeft?: number
+    relicsActive?: GameState['relicsActive']
+    deckPeek?: Card[]
+    revealedNextDraw?: Card | null
   } = {},
 ): GameState {
   return {
@@ -37,7 +42,11 @@ export function makeState(
     cells,
     hand: options.hand ?? [],
     deck: options.deck ?? [],
-    redealsLeft: 4,
+    redealsLeft: options.redealsLeft ?? 4,
+    initialRedealsLeft: options.initialRedealsLeft ?? options.redealsLeft ?? 4,
+    relicsActive: options.relicsActive ?? [],
+    deckPeek: options.deckPeek ?? [],
+    revealedNextDraw: options.revealedNextDraw ?? null,
     placedCards: options.placedCards ?? {},
     status: options.status ?? 'playing',
     selectedCardId: options.selectedCardId ?? null,

@@ -3,8 +3,10 @@ import type {
   DifficultyTarget,
   GameState,
   GenerateMesaParams,
+  RelicId,
   TopologyDef,
 } from '@/game/types'
+import { applyMesaStartRelics, initialRedealsLeft } from '@/game/relics'
 import { findValidArrangement } from '@/game/arrangementSolver'
 import { shuffleAuthoredDeck } from '@/game/authoredDeck'
 import { cellKey } from '@/game/helpers'
@@ -16,6 +18,7 @@ import { topologyDefToCells } from '@/game/topology'
 interface CreateGameStateFromMesaParams {
   deckSeed: number
   pinnedCount?: number
+  relicsActive?: RelicId[]
 }
 
 interface CreateCalibratedGeneratedGameStateParams {
@@ -30,7 +33,9 @@ function createGameStateFromMesa(
   params: CreateGameStateFromMesaParams,
 ): GameState {
   const { deckSeed } = params
+  const relicsActive = params.relicsActive ?? []
   const pinnedCount = params.pinnedCount ?? topology.pinnedCount
+  const startingRedeals = initialRedealsLeft(relicsActive)
   const seats = freeSeats(topology)
 
   if (pinnedCount < 0 || pinnedCount > seats.length) {
@@ -67,18 +72,24 @@ function createGameStateFromMesa(
     return { ...cell, state: 'pinned' as const, cardId: card.id }
   })
 
-  return {
+  const baseState: GameState = {
     rows: topology.rows,
     cols: topology.cols,
     cells,
     hand: playableCards.slice(0, 3),
     deck: playableCards.slice(3),
-    redealsLeft: 4,
+    redealsLeft: startingRedeals,
+    initialRedealsLeft: startingRedeals,
+    relicsActive,
+    deckPeek: [],
+    revealedNextDraw: null,
     placedCards,
     status: 'playing',
     selectedCardId: null,
     topologyIndex: null,
   }
+
+  return applyMesaStartRelics(baseState)
 }
 
 function createCalibratedGeneratedGameState(

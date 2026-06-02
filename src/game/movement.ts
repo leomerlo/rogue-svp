@@ -1,7 +1,8 @@
 import { getCard, getCellIndex, isSolved, isTableFull, shuffleDeck } from '@/game/helpers'
+import { applyRedealRelics, hasRelic } from '@/game/relics'
+import type { GameState, Place, Swap } from '@/game/types'
 
 const HAND_SIZE = 3
-import type { GameState, Place, Swap } from '@/game/types'
 
 function setCellCard(cells: GameState['cells'], indexToUpdate: number, cardId: string | null): GameState['cells'] {
   return cells.map((cell, index) => (
@@ -32,7 +33,7 @@ function drawCards(state: GameState): GameState {
     hand.push(deck.shift()!)
   }
 
-  return { ...state, hand, deck }
+  return { ...state, hand, deck, revealedNextDraw: null }
 }
 
 function selectCard(state: GameState, cardId: string): GameState {
@@ -91,7 +92,12 @@ function applyMove(state: GameState, move: Place): GameState {
     return { ...nextState, status: 'lost' }
   }
 
-  return drawCards(nextState)
+  const withReveal =
+    hasRelic(nextState.relicsActive, 'reveal_hand_next') && nextState.deck.length > 0
+      ? { ...nextState, revealedNextDraw: nextState.deck[0]! }
+      : nextState
+
+  return drawCards(withReveal)
 }
 
 function swapCard(state: GameState, move: Swap): GameState {
@@ -135,7 +141,7 @@ function reDealCards(state: GameState): GameState {
     redealsLeft: state.redealsLeft - 1,
   }
 
-  return drawCards(newState)
+  return applyRedealRelics(drawCards(newState))
 }
 
 export {

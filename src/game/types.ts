@@ -23,6 +23,10 @@ interface GameState {
   hand: Card[];
   deck: Card[];
   redealsLeft: number;
+  initialRedealsLeft: number;
+  relicsActive: RelicId[];
+  deckPeek: Card[];
+  revealedNextDraw: Card | null;
   placedCards: Record<string, Card>;
   status: 'playing' | 'won' | 'lost';
   selectedCardId: string | null;
@@ -95,7 +99,15 @@ interface MesaMetrics {
   avgSeatDegree: number;
 }
 
-type RelicId = string;
+type RelicId =
+  | 'extra_redeal'
+  | 'free_first_redeal'
+  | 'peek_5'
+  | 'reveal_hand_next'
+  | 'wild_on_start'
+  | 'wild_on_redeal'
+  | 'score_streak'
+  | 'score_no_loss';
 
 interface RunState {
   topologyIndex: number
