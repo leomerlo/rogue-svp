@@ -32,7 +32,7 @@ describe('Controls', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Generated' }))
 
-    const expected = createGeneratedGameState(0, { seed: 42, pinnedCount: 1 })
+    const expected = createGeneratedGameState(0, { seed: 42 })
     expect(screen.getByTestId('board').children).toHaveLength(expected.rows * expected.cols)
   })
 })

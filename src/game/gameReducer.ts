@@ -19,7 +19,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
     case 'reDeal':
       return reDealCards(state)
     case 'changeLevel':
-      return createGeneratedGameState(0, { seed: 42, pinnedCount: 1 })
+      return createGeneratedGameState(0, { seed: 42 })
     case 'advanceTopology': {
       if (state.status !== 'won' || state.topologyIndex === null) return state
       const nextIndex = state.topologyIndex + 1
@@ -35,6 +35,7 @@ function deckSeedFromState(state: GameState): number {
   const sample =
     state.hand[0] ?? state.deck[0] ?? Object.values(state.placedCards)[0]
   if (!sample) return 42
-  const match = /^gen-(\d+)-/.exec(sample.id)
-  return match ? Number(match[1]) : 42
+  const genMatch = /^gen-(\d+)-/.exec(sample.id)
+  if (genMatch) return Number(genMatch[1])
+  return 42
 }

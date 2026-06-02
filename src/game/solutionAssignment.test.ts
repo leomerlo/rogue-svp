@@ -1,12 +1,9 @@
 import { describe, expect, it } from 'vitest'
 import { isSolved } from '@/game/helpers'
+import { cellKey } from '@/game/helpers'
 import { makeState } from '@/test/utils/factories'
-import type { TopologyDef } from '@/game/types'
-import {
-  buildSolutionAssignment,
-  buildSolutionCards,
-  freeSeats,
-} from '@/game/solutionAssignment'
+import type { Card, TopologyDef } from '@/game/types'
+import { buildSolutionAssignment, freeSeats } from '@/game/solutionAssignment'
 
 function pathTopology(): TopologyDef {
   return {
@@ -17,7 +14,7 @@ function pathTopology(): TopologyDef {
       col,
       state: 'free' as const,
     })),
-    deckParams: { wildCount: 1, bufferSize: 6 },
+    pinnedCount: 0,
   }
 }
 
@@ -34,13 +31,23 @@ function ringTopology(): TopologyDef {
         state: row === 1 && col === 1 ? ('blocked' as const) : ('free' as const),
       }
     }),
-    deckParams: { wildCount: 1, bufferSize: 6 },
+    pinnedCount: 0,
   }
 }
 
-function stateFromSolution(topology: TopologyDef, cards: ReturnType<typeof buildSolutionCards>) {
+function cardsFromAssignment(topology: TopologyDef, seed: number): Card[] {
+  const assignment = buildSolutionAssignment(topology, seed)!
   const seats = freeSeats(topology)
-  const placedCards: Record<string, (typeof cards)[number]> = {}
+
+  return seats.map((seat, index) => {
+    const { colorA, colorB } = assignment.get(cellKey(seat.row, seat.col))!
+    return { id: `test-${seed}-${index}`, colorA, colorB }
+  })
+}
+
+function stateFromSolution(topology: TopologyDef, cards: Card[]) {
+  const seats = freeSeats(topology)
+  const placedCards: Record<string, Card> = {}
   const cells = topology.cells.map(({ row, col, state }) => {
     if (state === 'blocked') {
       return { row, col, state, cardId: null }
@@ -66,12 +73,10 @@ describe('buildSolutionAssignment', () => {
     expect(assignment).not.toBeNull()
     expect(assignment!.size).toBe(8)
   })
-})
 
-describe('buildSolutionCards', () => {
   it('produces cards that form a solved table on the path topology', () => {
     const topology = pathTopology()
-    const cards = buildSolutionCards(topology, 1)
+    const cards = cardsFromAssignment(topology, 1)
     expect(cards).toHaveLength(6)
 
     const state = stateFromSolution(topology, cards)
@@ -80,7 +85,7 @@ describe('buildSolutionCards', () => {
 
   it('produces cards that form a solved table on the ring topology', () => {
     const topology = ringTopology()
-    const cards = buildSolutionCards(topology, 3)
+    const cards = cardsFromAssignment(topology, 3)
     expect(cards).toHaveLength(8)
 
     const state = stateFromSolution(topology, cards)

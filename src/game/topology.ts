@@ -82,7 +82,7 @@ function generateTopology(params: TopologyParams): TopologyDef {
     }
   })
 
-  return { rows, cols, cells }
+  return { rows, cols, cells, pinnedCount: params.pinnedCount ?? 0 }
 }
 
 function topologyDefToCells(def: TopologyDef): Cell[] {

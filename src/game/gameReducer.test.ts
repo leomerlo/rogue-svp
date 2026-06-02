@@ -133,7 +133,7 @@ describe('gameReducer', () => {
       level: 'generated',
     })
 
-    const expected = createGeneratedGameState(0, { seed: 42, pinnedCount: 1 })
+    const expected = createGeneratedGameState(0, { seed: 42 })
     expect(next).toEqual(expected)
   })
 
@@ -154,7 +154,7 @@ describe('gameReducer', () => {
 
     it('does nothing when the run is already complete', () => {
       const won = {
-        ...createGeneratedGameState(11, { seed: 42 }),
+        ...createGeneratedGameState(5, { seed: 42 }),
         status: 'won' as const,
       }
 

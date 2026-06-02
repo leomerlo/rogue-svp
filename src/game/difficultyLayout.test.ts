@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest'
 import { createCalibratedGeneratedGameState } from '@/game/createGameStateFromMesa'
-import { generateMesa } from '@/game/generateMesa'
 
 function cellLayout(state: ReturnType<typeof createCalibratedGeneratedGameState>) {
   return JSON.stringify(state.cells.map((c) => [c.row, c.col, c.state, c.cardId]))

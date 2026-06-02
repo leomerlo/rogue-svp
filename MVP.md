@@ -33,7 +33,7 @@ El diseño completo describe un juego grande. El MVP **deliberadamente no lo con
 - Interacción de jugador:
   - Sentar una carta de la mano en un asiento.
   - Hacer *swap* entre dos cartas sentadas, o mover una sentada a un asiento libre (ilimitado mientras la partida siga en `playing`).
-  - **Re-deal**: descartar las 3 cartas de la mano y robar 3 nuevas (límite de 4 por fiesta).
+  - **Re-deal**: devolver las 3 cartas de la mano al mazo, barajarlo y robar 3 nuevas (límite de 4 por fiesta). No es un descarte — las cartas no se pierden, vuelven al pool.
 - Cálculo de felicidad por invitado (`isHappy`) y **resaltado visual a nivel carta** en la mesa: feliz (p. ej. borde verde) o infeliz (p. ej. borde rojo / sin resaltado positivo). Se evalúa en tiempo real al colocar o mover cartas. **No** hay indicadores por borde individual entre celdas.
 - Detección de victoria: mesa llena y todos los invitados felices.
 - Estado de derrota: mesa llena pero algún invitado infeliz.
@@ -130,7 +130,7 @@ interface GameState {
   hand: Card[];                       // mano visible: siempre 3 cartas mientras quede mazo
   deck: Card[];
   placedCards: Record<string, Card>;  // cartas sentadas; clave = card.id
-  redealsLeft: number;                // descarte de la mano completa (no por carta)
+  redealsLeft: number;                // re-deal: hand vuelve al mazo + barajar + draw 3 (no es descarte)
   status: 'playing' | 'won' | 'lost';
 }
 ```
@@ -153,7 +153,7 @@ Cada carta vive en exactamente una zona a la vez. `deck` y `hand` guardan los ob
 ## 5. Criterio de "hecho" del MVP
 
 - [ ] Puedo abrir la app y ver una mesa con asientos y mi mano.
-- [ ] Puedo sentar, swapear y descartar respetando los límites.
+- [ ] Puedo sentar, swapear y re-deal respetando los límites.
 - [ ] El juego marca visualmente qué cartas sentadas están felices y cuáles no (indicador por carta, no por borde).
 - [ ] El juego detecta victoria cuando todos están felices.
 - [ ] La lógica del puzzle tiene tests unitarios que pasan.
