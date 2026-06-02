@@ -6,7 +6,6 @@ import {
   createPathInitialState,
   PATH_SOLUTION,
 } from '@/test/utils/pathLevel'
-import { createRingInitialState } from '@/test/utils/ringLevel'
 import type { GameAction } from './types'
 
 describe('gameReducer', () => {
@@ -128,53 +127,14 @@ describe('gameReducer', () => {
     expect(next).toBe(state)
   })
 
-  describe('changeLevel', () => {
-    it('changeLevel to path returns a fresh path state', () => {
-      const modified = gameReducer(createRingInitialState(), {
-        type: 'selectCard',
-        cardId: 'ring-p0',
-      })
-
-      const next = gameReducer(modified, { type: 'changeLevel', level: 'path' })
-
-      expect(next).toEqual(createPathInitialState())
+  it('changeLevel to generated starts the authored run at topology 0', () => {
+    const next = gameReducer(createPathInitialState(), {
+      type: 'changeLevel',
+      level: 'generated',
     })
 
-    it('changeLevel to ring returns a fresh ring state', () => {
-      const modified = gameReducer(createPathInitialState(), {
-        type: 'placeCard',
-        move: PATH_SOLUTION[0]!,
-      })
-
-      const next = gameReducer(modified, { type: 'changeLevel', level: 'ring' })
-
-      expect(next).toEqual(createRingInitialState())
-    })
-
-    it('changeLevel to generated starts the authored run at topology 0', () => {
-      const next = gameReducer(createPathInitialState(), {
-        type: 'changeLevel',
-        level: 'generated',
-      })
-
-      const expected = createGeneratedGameState(0, { seed: 42 })
-      expect(next).toEqual(expected)
-    })
-
-    it('changeLevel clears in-progress play from the previous table', () => {
-      const midGame = gameReducer(createPathInitialState(), {
-        type: 'placeCard',
-        move: PATH_SOLUTION[0]!,
-      })
-
-      const next = gameReducer(midGame, { type: 'changeLevel', level: 'ring' })
-
-      expect(next.cells.every((cell) => cell.cardId === null)).toBe(true)
-      expect(next.placedCards).toEqual({})
-      expect(next.selectedCardId).toBeNull()
-      expect(next.status).toBe('playing')
-      expect(next.redealsLeft).toBe(4)
-    })
+    const expected = createGeneratedGameState(0, { seed: 42 })
+    expect(next).toEqual(expected)
   })
 
   describe('advanceTopology', () => {

@@ -43,10 +43,16 @@ type GameAction =
   | { type: 'swapCard'; move: Swap }
   | { type: 'resetGame' }
   | { type: 'reDeal' }
-  | { type: 'changeLevel'; level: 'path' | 'ring' | 'generated' }
+  | { type: 'changeLevel'; level: 'generated' }
   | { type: 'advanceTopology' }
 
-type ActionOf<T extends GameAction['type']> = Extract<GameAction, { type: T }>
+type RunAction =
+  | { type: 'advanceLevel'; mesaScore: number }
+  | { type: 'endRunLoss' }
+  | { type: 'applyRelic'; relicId: RelicId }
+  | { type: 'newRun'; seed: string }
+
+type ActionOf<T extends GameAction['type'] | RunAction['type']> = Extract<GameAction | RunAction, { type: T }>
 
 type InteractionAction =
   | ActionOf<'selectCard'>
@@ -89,4 +95,14 @@ interface MesaMetrics {
   avgSeatDegree: number;
 }
 
-export type { ActionOf, Card, Cell, CellState, Color, DifficultyTarget, GameAction, GameState, GenerateMesaParams, InteractionAction, MesaMetrics, Place, RegularColor, Side, Swap, TopologyDef, TopologyParams };
+type RelicId = string;
+
+interface RunState {
+  topologyIndex: number
+  relicsActive: RelicId[]
+  scoreTotal: number
+  seed: string
+  status: 'playing' | 'won' | 'lost'
+}
+
+export type { ActionOf, Card, Cell, CellState, Color, DifficultyTarget, GameAction, GameState, GenerateMesaParams, InteractionAction, MesaMetrics, Place, RegularColor, RelicId, RunAction, RunState, Side, Swap, TopologyDef, TopologyParams };

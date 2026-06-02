@@ -3,7 +3,6 @@ import { selectCard, deselectCard, applyMove, reDealCards, swapCard } from '@/ga
 import { createGeneratedGameState } from '@/game/createGeneratedGameState'
 import { TOPOLOGY_COUNT } from '@/game/topologies'
 import { createPathInitialState } from '@/test/utils/pathLevel'
-import { createRingInitialState } from '@/test/utils/ringLevel'
 
 export function gameReducer(state: GameState, action: GameAction): GameState {
   switch (action.type) {
@@ -20,18 +19,23 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
     case 'reDeal':
       return reDealCards(state)
     case 'changeLevel':
-      switch (action.level) {
-        case 'path': return createPathInitialState()
-        case 'ring': return createRingInitialState()
-        case 'generated': return createGeneratedGameState(0, { seed: 42 })
-        default: return state
-      }
+      return createGeneratedGameState(0, { seed: 42 })
     case 'advanceTopology': {
-      const nextIndex = (state.topologyIndex ?? -1) + 1
+      if (state.status !== 'won' || state.topologyIndex === null) return state
+      const nextIndex = state.topologyIndex + 1
       if (nextIndex >= TOPOLOGY_COUNT) return state
-      return createGeneratedGameState(nextIndex, { seed: nextIndex * 1000 + 42 })
+      return createGeneratedGameState(nextIndex, { seed: deckSeedFromState(state) })
     }
     default:
       return state
   }
+}
+
+function deckSeedFromState(state: GameState): number {
+  const sample =
+    state.hand[0] ?? state.deck[0] ?? Object.values(state.placedCards)[0]
+  if (!sample) return 42
+  const genMatch = /^gen-(\d+)-/.exec(sample.id)
+  if (genMatch) return Number(genMatch[1])
+  return 42
 }

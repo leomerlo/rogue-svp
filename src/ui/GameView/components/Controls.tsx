@@ -7,10 +7,6 @@ const Controls = () => {
     dispatch({ type: 'reDeal' })
   }
 
-  const changeLevelHandler = (level: 'path' | 'ring' | 'generated') => {
-    dispatch({ type: 'changeLevel', level })
-  }
-
   return (
     <div className="flex justify-center gap-4">
       <button
@@ -21,19 +17,7 @@ const Controls = () => {
         Re-deal ({gameState.redealsLeft} left)
       </button>
       <button
-        onClick={() => changeLevelHandler('path')}
-        className="bg-blue-500 text-white p-2 rounded-md"
-      >
-        Path
-      </button>
-      <button
-        onClick={() => changeLevelHandler('ring')}
-        className="bg-blue-500 text-white p-2 rounded-md"
-      >
-        Ring
-      </button>
-      <button
-        onClick={() => changeLevelHandler('generated')}
+        onClick={() => dispatch({ type: 'changeLevel', level: 'generated' })}
         className="bg-emerald-600 text-white p-2 rounded-md"
       >
         Generated
