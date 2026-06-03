@@ -1,25 +1,14 @@
 import { describe, expect, it } from 'vitest'
 import { findValidArrangement } from '@/game/arrangementSolver'
 import { isSolved } from '@/game/helpers'
-import {
-  createCalibratedGeneratedGameState,
-  createGameStateFromMesa,
-} from '@/game/createGameStateFromMesa'
+import { createCalibratedGeneratedGameState } from '@/game/createGameStateFromMesa'
 import { seatKey } from '@/game/solutionAssignment'
-import { makeState } from '@/test/utils/factories'
+import { makeState, topologyFromGameState } from '@/test/utils/factories'
 
 describe('createGameStateFromMesa', () => {
   it('builds playable state from a generated mesa', () => {
     const state = createCalibratedGeneratedGameState(3, { seed: 7, pinnedCount: 0 })
-    const topology = {
-      rows: state.rows,
-      cols: state.cols,
-      cells: state.cells.map(({ row, col, state: cellState }) => ({
-        row,
-        col,
-        state: cellState,
-      })),
-    }
+    const topology = topologyFromGameState(state)
 
     expect(state.status).toBe('playing')
     expect(state.hand).toHaveLength(3)
@@ -38,15 +27,7 @@ describe('createGameStateFromMesa', () => {
   it('supports solver-found winning placement with pinned cells', () => {
     const state = createCalibratedGeneratedGameState(4, { seed: 11, pinnedCount: 2 })
     const allCards = [...state.hand, ...state.deck]
-    const topology = {
-      rows: state.rows,
-      cols: state.cols,
-      cells: state.cells.map(({ row, col, state: cellState }) => ({
-        row,
-        col,
-        state: cellState,
-      })),
-    }
+    const topology = topologyFromGameState(state)
 
     const fixedBySeat = new Map(
       state.cells

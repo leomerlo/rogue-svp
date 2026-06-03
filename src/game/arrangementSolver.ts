@@ -30,7 +30,7 @@ function buildSearchContext(
     cardsById.set(card.id, card)
   }
 
-  const usedCardIds = new Set(fixedBySeat.values().map((c) => c.id))
+  const usedCardIds = new Set([...fixedBySeat.values()].map((c) => c.id))
   const availableCards = cards.filter((c) => !usedCardIds.has(c.id))
   if (seats.length > availableCards.length) return null
 
@@ -70,10 +70,11 @@ function findValidArrangement(
   cards: Card[],
   fixedBySeat: Map<string, Card> = new Map(),
 ): Map<string, string> | null {
-  const ctx = buildSearchContext(topology, cards, fixedBySeat)
-  if (ctx === null) return null
+  const maybeCtx = buildSearchContext(topology, cards, fixedBySeat)
+  if (maybeCtx === null) return null
+  const ctx = maybeCtx
 
-  const usedCardIds = new Set(fixedBySeat.values().map((c) => c.id))
+  const usedCardIds = new Set([...fixedBySeat.values()].map((c) => c.id))
   const availableCards = cards.filter((c) => !usedCardIds.has(c.id))
 
   function backtrack(seatIndex: number, usedIds: Set<string>, pool: Card[]): boolean {
@@ -112,10 +113,11 @@ function countValidArrangements(
 ): { count: number; capped: boolean } {
   const maxCount = options?.maxCount ?? DEFAULT_MAX_COUNT
   const fixedBySeat = options?.fixedBySeat ?? new Map()
-  const ctx = buildSearchContext(topology, cards, fixedBySeat)
-  if (ctx === null) return { count: 0, capped: false }
+  const maybeCtx = buildSearchContext(topology, cards, fixedBySeat)
+  if (maybeCtx === null) return { count: 0, capped: false }
+  const ctx = maybeCtx
 
-  const usedCardIds = new Set(fixedBySeat.values().map((c) => c.id))
+  const usedCardIds = new Set([...fixedBySeat.values()].map((c) => c.id))
   const availableCards = cards.filter((c) => !usedCardIds.has(c.id))
   let count = 0
 
