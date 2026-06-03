@@ -1,16 +1,16 @@
-import { describe, expect, it, afterEach } from 'vitest'
-import { cleanup, screen, within } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
+import { describe, expect, it, vi, afterEach } from 'vitest'
+import { act, cleanup, screen, within } from '@testing-library/react'
 import { gameReducer } from '@/game/gameReducer'
-import { createGeneratedGameState } from '@/game/createGeneratedGameState'
-import { findValidArrangement } from '@/game/arrangementSolver'
-import { seatKey } from '@/game/solutionAssignment'
+import { createRunState } from '@/game/createRunState'
 import {
   createPathInitialState,
   PATH_SOLUTION,
 } from '@/test/utils/pathLevel'
-import { makeState, topologyFromGameState } from '@/test/utils/factories'
+import { makeState } from '@/test/utils/factories'
 import { renderWithGameState } from '@/test/utils/renderWithGameState'
+import { RunContext } from '@/ui/context/RunContext'
+import { GameProvider } from '@/ui/providers/GameProvider'
+import { render } from '@testing-library/react'
 import GameView from './index'
 
 describe('GameView', () => {
@@ -49,42 +49,42 @@ describe('GameView', () => {
     expect(screen.getByTestId('board')).toBeInTheDocument()
   })
 
-  it('advances to the next authored topology from the win overlay', async () => {
-    const user = userEvent.setup()
-    let state = createGeneratedGameState(0, { seed: 7 })
-    const allCards = [...state.hand, ...state.deck]
-    const topology = topologyFromGameState(state)
-    const fixedBySeat = new Map(
-      state.cells
-        .filter((c) => c.state === 'pinned')
-        .map((c) => [seatKey(c.row, c.col), state.placedCards[c.cardId!]!] as const),
+  it('dispatches advanceLevel to run when game is won', async () => {
+    const runDispatch = vi.fn()
+    let wonState = createPathInitialState()
+    for (const move of PATH_SOLUTION) {
+      wonState = gameReducer(wonState, { type: 'placeCard', move })
+    }
+
+    render(
+      <RunContext.Provider value={{ runState: createRunState('test'), runDispatch }}>
+        <GameProvider initialState={wonState}>
+          <GameView />
+        </GameProvider>
+      </RunContext.Provider>
     )
-    const arrangement = findValidArrangement(topology, allCards, fixedBySeat)
-    expect(arrangement).not.toBeNull()
 
-    const cardsById = new Map(allCards.map((c) => [c.id, c]))
-    const placedCards = { ...state.placedCards }
-    const cells = state.cells.map((cell) => {
-      if (cell.state === 'blocked' || cell.state === 'pinned') return { ...cell }
-      const cardId = arrangement!.get(seatKey(cell.row, cell.col))!
-      const card = cardsById.get(cardId)!
-      placedCards[cardId] = card
-      return { ...cell, cardId }
-    })
+    await act(async () => {})
 
-    state = makeState(state.rows, state.cols, cells, {
-      placedCards,
-      hand: [],
-      deck: [],
-      topologyIndex: 0,
-      status: 'won',
-    })
+    expect(runDispatch).toHaveBeenCalledWith(
+      expect.objectContaining({ type: 'advanceLevel', mesaScore: expect.any(Number) })
+    )
+  })
 
-    renderWithGameState(<GameView />, state)
+  it('dispatches endRunLoss to run when game is lost', async () => {
+    const runDispatch = vi.fn()
+    const lostState = makeState(1, 6, [], { status: 'lost' })
 
-    await user.click(screen.getByRole('button', { name: 'Next level' }))
+    render(
+      <RunContext.Provider value={{ runState: createRunState('test'), runDispatch }}>
+        <GameProvider initialState={lostState}>
+          <GameView />
+        </GameProvider>
+      </RunContext.Provider>
+    )
 
-    expect(screen.queryByRole('status')).not.toBeInTheDocument()
-    expect(screen.getByTestId('board').children).toHaveLength(18)
+    await act(async () => {})
+
+    expect(runDispatch).toHaveBeenCalledWith({ type: 'endRunLoss' })
   })
 })
