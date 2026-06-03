@@ -4,7 +4,7 @@ import { findValidArrangement } from '@/game/arrangementSolver'
 import { createGeneratedGameState } from '@/game/createGeneratedGameState'
 import { GRID_COLS, GRID_ROWS } from '@/game/topologies'
 import { freeSeats, seatKey } from '@/game/solutionAssignment'
-import { makeState } from '@/test/utils/factories'
+import { makeState, topologyFromGameState } from '@/test/utils/factories'
 
 describe('createGeneratedGameState', () => {
   it('builds a playable state from an authored topology', () => {
@@ -28,15 +28,7 @@ describe('createGeneratedGameState', () => {
   it('supports a solver-found winning placement', () => {
     const state = createGeneratedGameState(0, { seed: 7 })
     const allCards = [...state.hand, ...state.deck]
-    const topology = {
-      rows: state.rows,
-      cols: state.cols,
-      cells: state.cells.map(({ row, col, state: cellState }) => ({
-        row,
-        col,
-        state: cellState,
-      })),
-    }
+    const topology = topologyFromGameState(state)
 
     const arrangement = findValidArrangement(topology, allCards)
     expect(arrangement).not.toBeNull()
@@ -93,15 +85,7 @@ describe('createGeneratedGameState', () => {
   it('supports a solver-found winning placement with pinned cells', () => {
     const state = createGeneratedGameState(4, { seed: 9 })
     const allCards = [...state.hand, ...state.deck]
-    const topology = {
-      rows: state.rows,
-      cols: state.cols,
-      cells: state.cells.map(({ row, col, state: cellState }) => ({
-        row,
-        col,
-        state: cellState,
-      })),
-    }
+    const topology = topologyFromGameState(state)
 
     const fixedBySeat = new Map(
       state.cells

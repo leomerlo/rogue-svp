@@ -64,39 +64,11 @@ type InteractionAction =
   | ActionOf<'placeCard'>
   | ActionOf<'swapCard'>
 
-interface TopologyParams {
-  rows: number;
-  cols: number;
-  targetFreeSeats?: number;
-  seed?: number;
-  pinnedCount?: number;
-}
-
 interface TopologyDef {
   rows: number;
   cols: number;
   cells: Array<{ row: number; col: number; state: CellState }>;
   pinnedCount: number;
-}
-
-interface GenerateMesaParams {
-  rows?: number;
-  cols?: number;
-  targetFreeSeats?: number;
-  seed?: number;
-  attemptBudget?: number;
-  bufferSize?: number;
-  wildCount?: number;
-}
-
-type DifficultyTarget = 1 | 2 | 3 | 4 | 5;
-
-interface MesaMetrics {
-  solutionCount: number;
-  solutionCountCapped: boolean;
-  wildRatio: number;
-  bottleneckCount: number;
-  avgSeatDegree: number;
 }
 
 type RelicId =
@@ -117,4 +89,4 @@ interface RunState {
   status: 'playing' | 'won' | 'lost'
 }
 
-export type { ActionOf, Card, Cell, CellState, Color, DifficultyTarget, GameAction, GameState, GenerateMesaParams, InteractionAction, MesaMetrics, Place, RegularColor, RelicId, RunAction, RunState, Side, Swap, TopologyDef, TopologyParams };
+export type { ActionOf, Card, Cell, CellState, Color, GameAction, GameState, InteractionAction, Place, RegularColor, RelicId, RunAction, RunState, Side, Swap, TopologyDef };

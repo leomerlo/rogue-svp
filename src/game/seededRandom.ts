@@ -1,4 +1,15 @@
-function seededRandom(seed: number): () => number {
+type SeededRandom = () => number
+
+function hashStringToSeed(input: string): number {
+  let hash = 2166136261
+  for (let i = 0; i < input.length; i++) {
+    hash ^= input.charCodeAt(i)
+    hash = Math.imul(hash, 16777619)
+  }
+  return hash >>> 0
+}
+
+function seededRandom(seed: number): SeededRandom {
   let s = seed >>> 0
   return () => {
     s = (s + 0x6d2b79f5) >>> 0
@@ -8,7 +19,7 @@ function seededRandom(seed: number): () => number {
   }
 }
 
-function shuffled<T>(arr: T[], rng: () => number): T[] {
+function shuffled<T>(arr: T[], rng: SeededRandom): T[] {
   const result = [...arr]
   for (let i = result.length - 1; i > 0; i--) {
     const j = Math.floor(rng() * (i + 1));
@@ -17,4 +28,5 @@ function shuffled<T>(arr: T[], rng: () => number): T[] {
   return result
 }
 
-export { seededRandom, shuffled }
+export { hashStringToSeed, seededRandom, shuffled }
+export type { SeededRandom }

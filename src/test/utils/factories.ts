@@ -1,4 +1,4 @@
-import type { Card, Cell, GameState, RegularColor } from '@/game/types'
+import type { Card, Cell, GameState, RegularColor, TopologyDef } from '@/game/types'
 
 export function makeCard(id: string, colorA: RegularColor, colorB: RegularColor): Card {
   return { id, colorA, colorB }
@@ -15,6 +15,19 @@ export function makeCell(row: number, col: number, overrides: Partial<Cell> = {}
     state: 'free',
     cardId: null,
     ...overrides,
+  }
+}
+
+export function topologyFromGameState(state: GameState): TopologyDef {
+  return {
+    rows: state.rows,
+    cols: state.cols,
+    cells: state.cells.map(({ row, col, state: cellState }) => ({
+      row,
+      col,
+      state: cellState,
+    })),
+    pinnedCount: state.cells.filter((c) => c.state === 'pinned').length,
   }
 }
 

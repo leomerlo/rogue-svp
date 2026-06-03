@@ -9,7 +9,7 @@ import {
   createPathInitialState,
   PATH_SOLUTION,
 } from '@/test/utils/pathLevel'
-import { makeState } from '@/test/utils/factories'
+import { makeState, topologyFromGameState } from '@/test/utils/factories'
 import { renderWithGameState } from '@/test/utils/renderWithGameState'
 import GameView from './index'
 
@@ -53,15 +53,7 @@ describe('GameView', () => {
     const user = userEvent.setup()
     let state = createGeneratedGameState(0, { seed: 7 })
     const allCards = [...state.hand, ...state.deck]
-    const topology = {
-      rows: state.rows,
-      cols: state.cols,
-      cells: state.cells.map(({ row, col, state: cellState }) => ({
-        row,
-        col,
-        state: cellState,
-      })),
-    }
+    const topology = topologyFromGameState(state)
     const fixedBySeat = new Map(
       state.cells
         .filter((c) => c.state === 'pinned')

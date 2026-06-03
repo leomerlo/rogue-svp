@@ -122,7 +122,7 @@ describe('gameReducer', () => {
   it('returns the current state for an unknown action', () => {
     const state = createPathInitialState()
 
-    const next = gameReducer(state, { type: 'unknown' } as GameAction)
+    const next = gameReducer(state, { type: 'unknown' } as unknown as GameAction)
 
     expect(next).toBe(state)
   })
