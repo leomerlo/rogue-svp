@@ -1,16 +1,7 @@
-import type {
-  Card,
-  DifficultyTarget,
-  GameState,
-  GenerateMesaParams,
-  RelicId,
-  TopologyDef,
-} from '@/game/types'
+import type { Card, GameState, RelicId, TopologyDef } from '@/game/types'
 import { applyMesaStartRelics, initialRedealsLeft } from '@/game/relics'
 import { findValidArrangement } from '@/game/arrangementSolver'
-import { shuffleAuthoredDeck } from '@/game/authoredDeck'
 import { cellKey } from '@/game/helpers'
-import { generateMesa } from '@/game/generateMesa'
 import { seededRandom, shuffled } from '@/game/seededRandom'
 import { freeSeats, seatKey } from '@/game/solutionAssignment'
 import { topologyDefToCells } from '@/game/topology'
@@ -19,12 +10,6 @@ interface CreateGameStateFromMesaParams {
   deckSeed: number
   pinnedCount?: number
   relicsActive?: RelicId[]
-}
-
-interface CreateCalibratedGeneratedGameStateParams {
-  seed?: number
-  pinnedCount?: number
-  mesaParams?: Omit<GenerateMesaParams, 'seed'>
 }
 
 function createGameStateFromMesa(
@@ -92,26 +77,4 @@ function createGameStateFromMesa(
   return applyMesaStartRelics(baseState)
 }
 
-function createCalibratedGeneratedGameState(
-  difficultyTarget: DifficultyTarget,
-  params?: CreateCalibratedGeneratedGameStateParams,
-): GameState {
-  const seed = params?.seed ?? 42
-  const { topology, deckSeed } = generateMesa(difficultyTarget, {
-    seed,
-    ...params?.mesaParams,
-  })
-  const deckCards = shuffleAuthoredDeck(deckSeed)
-
-  return createGameStateFromMesa(topology, deckCards, {
-    deckSeed,
-    pinnedCount: params?.pinnedCount ?? 0,
-  })
-}
-
-export {
-  createCalibratedGeneratedGameState,
-  createGameStateFromMesa,
-  type CreateCalibratedGeneratedGameStateParams,
-  type CreateGameStateFromMesaParams,
-}
+export { createGameStateFromMesa, type CreateGameStateFromMesaParams }

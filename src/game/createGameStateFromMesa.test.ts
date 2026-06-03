@@ -1,23 +1,28 @@
 import { describe, expect, it } from 'vitest'
 import { findValidArrangement } from '@/game/arrangementSolver'
+import { shuffleAuthoredDeck } from '@/game/authoredDeck'
+import { createGameStateFromMesa } from '@/game/createGameStateFromMesa'
 import { isSolved } from '@/game/helpers'
-import { createCalibratedGeneratedGameState } from '@/game/createGameStateFromMesa'
+import { getTopology } from '@/game/topologies'
 import { seatKey } from '@/game/solutionAssignment'
 import { makeState, topologyFromGameState } from '@/test/utils/factories'
 
 describe('createGameStateFromMesa', () => {
-  it('builds playable state from a generated mesa', () => {
-    const state = createCalibratedGeneratedGameState(3, { seed: 7, pinnedCount: 0 })
-    const topology = topologyFromGameState(state)
+  it('builds playable state from an authored topology', () => {
+    const topology = getTopology(2)
+    const state = createGameStateFromMesa(topology, shuffleAuthoredDeck(7), { deckSeed: 7 })
+    const topologyFromState = topologyFromGameState(state)
 
     expect(state.status).toBe('playing')
     expect(state.hand).toHaveLength(3)
-    expect(findValidArrangement(topology, [...state.hand, ...state.deck])).not.toBeNull()
+    expect(findValidArrangement(topologyFromState, [...state.hand, ...state.deck])).not.toBeNull()
   })
 
-  it('createCalibratedGeneratedGameState is deterministic for the same difficulty and seed', () => {
-    const a = createCalibratedGeneratedGameState(2, { seed: 99, pinnedCount: 0 })
-    const b = createCalibratedGeneratedGameState(2, { seed: 99, pinnedCount: 0 })
+  it('is deterministic for the same topology and seed', () => {
+    const topology = getTopology(1)
+    const deck = shuffleAuthoredDeck(99)
+    const a = createGameStateFromMesa(topology, deck, { deckSeed: 99 })
+    const b = createGameStateFromMesa(topology, deck, { deckSeed: 99 })
 
     expect(a.cells).toEqual(b.cells)
     expect(a.hand).toEqual(b.hand)
@@ -25,16 +30,20 @@ describe('createGameStateFromMesa', () => {
   })
 
   it('supports solver-found winning placement with pinned cells', () => {
-    const state = createCalibratedGeneratedGameState(4, { seed: 11, pinnedCount: 2 })
+    const topology = getTopology(4)
+    const state = createGameStateFromMesa(topology, shuffleAuthoredDeck(11), {
+      deckSeed: 11,
+      pinnedCount: 2,
+    })
     const allCards = [...state.hand, ...state.deck]
-    const topology = topologyFromGameState(state)
+    const topologyFromState = topologyFromGameState(state)
 
     const fixedBySeat = new Map(
       state.cells
         .filter((c) => c.state === 'pinned')
         .map((c) => [seatKey(c.row, c.col), state.placedCards[c.cardId!]!] as const),
     )
-    const arrangement = findValidArrangement(topology, allCards, fixedBySeat)
+    const arrangement = findValidArrangement(topologyFromState, allCards, fixedBySeat)
     expect(arrangement).not.toBeNull()
 
     const cardsById = new Map(allCards.map((c) => [c.id, c]))
