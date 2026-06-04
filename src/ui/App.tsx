@@ -39,7 +39,17 @@ export function AppContent() {
   }
 
   if (runState.status === 'lost') {
-    return <div data-testid="game-over">Game Over</div>
+    return (
+      <div className="flex flex-col items-center gap-4" data-testid="game-over">
+        <p className="text-3xl font-bold text-red-500">Game Over</p>
+        <button
+          onClick={() => runDispatch({ type: 'newRun', seed: `run-${Date.now()}` })}
+          className="rounded-md bg-slate-700 px-4 py-2 text-slate-100 hover:bg-slate-600"
+        >
+          Play Again
+        </button>
+      </div>
+    )
   }
 
   if (runState.status === 'reward') {

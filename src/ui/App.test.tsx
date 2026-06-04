@@ -1,5 +1,6 @@
-import { describe, expect, it, afterEach } from 'vitest'
+import { describe, expect, it, vi, afterEach } from 'vitest'
 import { cleanup, render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import App, { AppContent } from './App'
 import { RunContext } from './context/RunContext'
 import { createRunState } from '@/game/createRunState'
@@ -52,7 +53,25 @@ describe('AppContent', () => {
     )
 
     expect(screen.getByTestId('game-over')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /play again/i })).toBeInTheDocument()
     expect(screen.queryByTestId('game-view')).not.toBeInTheDocument()
+  })
+
+  it('dispatches newRun when Play Again is clicked on game over screen', async () => {
+    const runDispatch = vi.fn()
+    const lostState = runReducer(createRunState('test'), { type: 'endRunLoss' })
+
+    render(
+      <RunContext.Provider value={{ runState: lostState, runDispatch }}>
+        <AppContent />
+      </RunContext.Provider>
+    )
+
+    await userEvent.click(screen.getByRole('button', { name: /play again/i }))
+
+    expect(runDispatch).toHaveBeenCalledWith(
+      expect.objectContaining({ type: 'newRun' })
+    )
   })
 
   it('renders GameView when run is playing', () => {
