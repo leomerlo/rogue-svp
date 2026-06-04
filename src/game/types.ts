@@ -47,11 +47,12 @@ type GameAction =
   | { type: 'swapCard'; move: Swap }
   | { type: 'resetGame' }
   | { type: 'reDeal' }
-  | { type: 'changeLevel'; level: 'generated' }
+  | { type: 'changeLevel'; level: 'generated'; relicsActive?: RelicId[] }
   | { type: 'advanceTopology' }
 
 type RunAction =
   | { type: 'advanceLevel'; mesaScore: number }
+  | { type: 'startReward'; mesaScore: number }
   | { type: 'endRunLoss' }
   | { type: 'applyRelic'; relicId: RelicId }
   | { type: 'newRun'; seed: string }
@@ -86,7 +87,8 @@ interface RunState {
   relicsActive: RelicId[]
   scoreTotal: number
   seed: string
-  status: 'playing' | 'won' | 'lost'
+  status: 'playing' | 'won' | 'lost' | 'reward'
+  pendingMesaScore: number
 }
 
 export type { ActionOf, Card, Cell, CellState, Color, GameAction, GameState, InteractionAction, Place, RegularColor, RelicId, RunAction, RunState, Side, Swap, TopologyDef };

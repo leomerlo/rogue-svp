@@ -68,4 +68,40 @@ describe('AppContent', () => {
     expect(screen.queryByTestId('run-complete')).not.toBeInTheDocument()
     expect(screen.queryByTestId('game-over')).not.toBeInTheDocument()
   })
+
+  it('shows reward screen with 3 relic options when run status is reward', () => {
+    const rewardState = runReducer(createRunState('test'), { type: 'startReward', mesaScore: 50 })
+
+    render(
+      <RunContext.Provider value={{ runState: rewardState, runDispatch: () => {} }}>
+        <AppContent />
+      </RunContext.Provider>
+    )
+
+    expect(screen.getByTestId('reward-screen')).toBeInTheDocument()
+    expect(screen.queryByTestId('game-view')).not.toBeInTheDocument()
+    const options = screen.getAllByTestId(/^relic-option-/)
+    expect(options).toHaveLength(3)
+  })
+
+  it('excludes already-active relics from reward options', () => {
+    let state = createRunState('test')
+    state = runReducer(state, { type: 'applyRelic', relicId: 'extra_redeal' })
+    state = runReducer(state, { type: 'applyRelic', relicId: 'peek_5' })
+    state = runReducer(state, { type: 'applyRelic', relicId: 'score_streak' })
+    state = runReducer(state, { type: 'applyRelic', relicId: 'wild_on_start' })
+    state = runReducer(state, { type: 'applyRelic', relicId: 'wild_on_redeal' })
+    state = runReducer(state, { type: 'startReward', mesaScore: 30 })
+
+    render(
+      <RunContext.Provider value={{ runState: state, runDispatch: () => {} }}>
+        <AppContent />
+      </RunContext.Provider>
+    )
+
+    expect(screen.queryByTestId('relic-option-extra_redeal')).not.toBeInTheDocument()
+    expect(screen.queryByTestId('relic-option-peek_5')).not.toBeInTheDocument()
+    const options = screen.getAllByTestId(/^relic-option-/)
+    expect(options).toHaveLength(3)
+  })
 })
