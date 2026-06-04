@@ -27,7 +27,7 @@ describe('App', () => {
 describe('AppContent', () => {
   afterEach(() => cleanup())
 
-  it('shows run complete screen when run is won', () => {
+  it('shows run end screen (won) when run is won', () => {
     let wonState = createRunState('test')
     for (let i = 0; i < 4; i++) {
       wonState = runReducer(wonState, { type: 'advanceLevel', mesaScore: 100 })
@@ -39,11 +39,12 @@ describe('AppContent', () => {
       </RunContext.Provider>
     )
 
-    expect(screen.getByTestId('run-complete')).toBeInTheDocument()
+    expect(screen.getByTestId('run-end-screen')).toBeInTheDocument()
+    expect(screen.getByText('¡Fiesta completada!')).toBeInTheDocument()
     expect(screen.queryByTestId('game-view')).not.toBeInTheDocument()
   })
 
-  it('shows game over screen when run is lost', () => {
+  it('shows run end screen (lost) when run is lost', () => {
     const lostState = runReducer(createRunState('test'), { type: 'endRunLoss' })
 
     render(
@@ -52,12 +53,13 @@ describe('AppContent', () => {
       </RunContext.Provider>
     )
 
-    expect(screen.getByTestId('game-over')).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /play again/i })).toBeInTheDocument()
+    expect(screen.getByTestId('run-end-screen')).toBeInTheDocument()
+    expect(screen.getByText('La fiesta terminó antes de tiempo.')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /nueva run/i })).toBeInTheDocument()
     expect(screen.queryByTestId('game-view')).not.toBeInTheDocument()
   })
 
-  it('dispatches newRun when Play Again is clicked on game over screen', async () => {
+  it('dispatches newRun when Nueva Run is clicked on game over screen', async () => {
     const runDispatch = vi.fn()
     const lostState = runReducer(createRunState('test'), { type: 'endRunLoss' })
 
@@ -67,7 +69,7 @@ describe('AppContent', () => {
       </RunContext.Provider>
     )
 
-    await userEvent.click(screen.getByRole('button', { name: /play again/i }))
+    await userEvent.click(screen.getByRole('button', { name: /nueva run/i }))
 
     expect(runDispatch).toHaveBeenCalledWith(
       expect.objectContaining({ type: 'newRun' })
@@ -84,8 +86,7 @@ describe('AppContent', () => {
     )
 
     expect(screen.getByTestId('game-view')).toBeInTheDocument()
-    expect(screen.queryByTestId('run-complete')).not.toBeInTheDocument()
-    expect(screen.queryByTestId('game-over')).not.toBeInTheDocument()
+    expect(screen.queryByTestId('run-end-screen')).not.toBeInTheDocument()
   })
 
   it('shows reward screen with 3 relic options when run status is reward', () => {
