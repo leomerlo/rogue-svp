@@ -19,7 +19,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
     case 'reDeal':
       return reDealCards(state)
     case 'changeLevel':
-      return createGeneratedGameState(0, { seed: 42 })
+      return createGeneratedGameState(0, { seed: 42, relicsActive: action.relicsActive })
     case 'advanceTopology': {
       if (state.status !== 'won' || state.topologyIndex === null) return state
       const nextIndex = state.topologyIndex + 1

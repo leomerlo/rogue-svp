@@ -1,7 +1,9 @@
 import { useGame } from '@/ui/hooks/useGame'
+import { useRun } from '@/ui/hooks/useRun'
 
 const Controls = () => {
   const { gameState, dispatch } = useGame()
+  const { runState } = useRun()
 
   const reDealHandler = () => {
     dispatch({ type: 'reDeal' })
@@ -17,7 +19,7 @@ const Controls = () => {
         Re-deal ({gameState.redealsLeft} left)
       </button>
       <button
-        onClick={() => dispatch({ type: 'changeLevel', level: 'generated' })}
+        onClick={() => dispatch({ type: 'changeLevel', level: 'generated', relicsActive: runState.relicsActive })}
         className="bg-emerald-600 text-white p-2 rounded-md"
       >
         Generated

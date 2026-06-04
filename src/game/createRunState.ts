@@ -7,6 +7,7 @@ function createRunState(seed: string): RunState {
     scoreTotal: 0,
     seed,
     status: 'playing',
+    pendingMesaScore: 0,
   }
 }
 

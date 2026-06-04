@@ -49,7 +49,7 @@ describe('GameView', () => {
     expect(screen.getByTestId('board')).toBeInTheDocument()
   })
 
-  it('dispatches advanceLevel to run when game is won', async () => {
+  it('dispatches startReward to run when game is won on a non-final mesa', async () => {
     const runDispatch = vi.fn()
     let wonState = createPathInitialState()
     for (const move of PATH_SOLUTION) {
@@ -58,6 +58,30 @@ describe('GameView', () => {
 
     render(
       <RunContext.Provider value={{ runState: createRunState('test'), runDispatch }}>
+        <GameProvider initialState={wonState}>
+          <GameView />
+        </GameProvider>
+      </RunContext.Provider>
+    )
+
+    await act(async () => {})
+
+    expect(runDispatch).toHaveBeenCalledWith(
+      expect.objectContaining({ type: 'startReward', mesaScore: expect.any(Number) })
+    )
+  })
+
+  it('dispatches advanceLevel directly when game is won on the last mesa', async () => {
+    const runDispatch = vi.fn()
+    let wonState = createPathInitialState()
+    for (const move of PATH_SOLUTION) {
+      wonState = gameReducer(wonState, { type: 'placeCard', move })
+    }
+
+    const lastMesaRunState = { ...createRunState('test'), topologyIndex: 3 }
+
+    render(
+      <RunContext.Provider value={{ runState: lastMesaRunState, runDispatch }}>
         <GameProvider initialState={wonState}>
           <GameView />
         </GameProvider>

@@ -6,18 +6,25 @@ import StatusOverlay from '@/ui/GameView/components/StatusOverlay'
 import { useGame } from '@/ui/hooks/useGame'
 import { useRun } from '@/ui/hooks/useRun'
 import { computeMesaScore } from '@/game/mesaScore'
+import { RUN_MESA_COUNT } from '@/game/runReducer'
 
 const GameView = () => {
   const { gameState, dispatch } = useGame()
-  const { runDispatch } = useRun()
+  const { runState, runDispatch } = useRun()
 
   useEffect(() => {
     if (gameState.status === 'won') {
-      runDispatch({ type: 'advanceLevel', mesaScore: computeMesaScore(gameState) })
+      const mesaScore = computeMesaScore(gameState)
+      const isLastMesa = runState.topologyIndex >= RUN_MESA_COUNT - 1
+      if (isLastMesa) {
+        runDispatch({ type: 'advanceLevel', mesaScore })
+      } else {
+        runDispatch({ type: 'startReward', mesaScore })
+      }
     } else if (gameState.status === 'lost') {
       runDispatch({ type: 'endRunLoss' })
     }
-  }, [gameState.status, runDispatch])
+  }, [gameState.status, runDispatch, runState.topologyIndex])
 
   return (
     <div className="flex w-full max-w-2xl flex-col gap-4 mx-auto" data-testid="game-view">

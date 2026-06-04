@@ -10,6 +10,7 @@ describe('createRunState', () => {
       scoreTotal: 0,
       seed: 'run-seed',
       status: 'playing',
+      pendingMesaScore: 0,
     })
   })
 })
@@ -53,6 +54,28 @@ describe('runReducer', () => {
     expect(state.scoreTotal).toBe(35)
     expect(state.topologyIndex).toBe(2)
     expect(state.status).toBe('playing')
+  })
+
+  it('startReward sets status to reward and stores pendingMesaScore', () => {
+    const state = createRunState('seed')
+
+    const next = runReducer(state, { type: 'startReward', mesaScore: 75 })
+
+    expect(next.status).toBe('reward')
+    expect(next.pendingMesaScore).toBe(75)
+    expect(next.topologyIndex).toBe(0)
+  })
+
+  it('advanceLevel from reward clears pendingMesaScore and resumes playing', () => {
+    let state = createRunState('seed')
+    state = runReducer(state, { type: 'startReward', mesaScore: 50 })
+
+    const next = runReducer(state, { type: 'advanceLevel', mesaScore: 50 })
+
+    expect(next.status).toBe('playing')
+    expect(next.pendingMesaScore).toBe(0)
+    expect(next.topologyIndex).toBe(1)
+    expect(next.scoreTotal).toBe(50)
   })
 
   it('newRun resets to a fresh RunState with the given seed', () => {

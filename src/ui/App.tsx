@@ -1,25 +1,38 @@
 import { useMemo } from 'react'
 import GameView from '@/ui/GameView'
+import RewardScreen from '@/ui/RewardScreen'
 import { GameProvider } from '@/ui/providers/GameProvider'
 import { RunProvider } from '@/ui/providers/RunProvider'
 import { useRun } from '@/ui/hooks/useRun'
 import { createRunState } from '@/game/createRunState'
 import { createGeneratedGameState } from '@/game/createGeneratedGameState'
-import { hashStringToSeed } from '@/game/seededRandom'
+import { RELICS } from '@/game/relics'
+import { hashStringToSeed, seededRandom, shuffled } from '@/game/seededRandom'
 
 const INITIAL_RUN_STATE = createRunState('run-001')
 
 export function AppContent() {
-  const { runState } = useRun()
+  const { runState, runDispatch } = useRun()
 
   const mesaKey = `${runState.seed}-${runState.topologyIndex}`
 
   const initialGameState = useMemo(
     () => runState.status === 'playing'
-      ? createGeneratedGameState(runState.topologyIndex, { seed: hashStringToSeed(mesaKey) })
+      ? createGeneratedGameState(runState.topologyIndex, {
+          seed: hashStringToSeed(mesaKey),
+          relicsActive: runState.relicsActive,
+        })
       : null,
-    [runState.seed, runState.topologyIndex, runState.status],
+    [runState.seed, runState.topologyIndex, runState.status, runState.relicsActive],
   )
+
+  const rewardRelics = useMemo(() => {
+    if (runState.status !== 'reward') return []
+    const rewardSeed = hashStringToSeed(`${runState.seed}-reward-${runState.topologyIndex}`)
+    const rng = seededRandom(rewardSeed)
+    const available = RELICS.filter((r) => !runState.relicsActive.includes(r.id))
+    return shuffled(available, rng).slice(0, 3)
+  }, [runState.status, runState.seed, runState.topologyIndex, runState.relicsActive])
 
   if (runState.status === 'won') {
     return <div data-testid="run-complete">Run Complete!</div>
@@ -27,6 +40,18 @@ export function AppContent() {
 
   if (runState.status === 'lost') {
     return <div data-testid="game-over">Game Over</div>
+  }
+
+  if (runState.status === 'reward') {
+    return (
+      <RewardScreen
+        relics={rewardRelics}
+        onSelect={(relicId) => {
+          runDispatch({ type: 'applyRelic', relicId })
+          runDispatch({ type: 'advanceLevel', mesaScore: runState.pendingMesaScore })
+        }}
+      />
+    )
   }
 
   return (
