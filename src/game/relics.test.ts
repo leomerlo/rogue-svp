@@ -76,6 +76,54 @@ describe('peek_5', () => {
     const state = createGeneratedGameState(0, { seed: 42 })
     expect(state.deckPeek).toEqual([])
   })
+
+  it('deckPeek shrinks by one each time a card is drawn from it', () => {
+    // Full hand of 3 so placing one card draws exactly one from deck
+    const hand = [makeCard('h1', 'red', 'blue'), makeCard('h2', 'green', 'yellow'), makeCard('h3', 'blue', 'red')]
+    const peek = [
+      makeCard('d1', 'green', 'yellow'),
+      makeCard('d2', 'blue', 'red'),
+      makeCard('d3', 'yellow', 'green'),
+      makeCard('d4', 'red', 'green'),
+      makeCard('d5', 'blue', 'yellow'),
+    ]
+    const extra = makeCard('d6', 'green', 'red')
+    const state = makeState(1, 4, [makeCell(0, 0), makeCell(0, 1), makeCell(0, 2), makeCell(0, 3)], {
+      hand,
+      deck: [...peek, extra],
+      relicsActive: ['peek_5'],
+      deckPeek: peek,
+    })
+
+    const next = applyMove(state, { cardId: 'h1', row: 0, col: 0 })
+
+    // d1 moved from deck into hand; peek shrinks to [d2..d5], d6 is NOT added
+    expect(next.deckPeek.map((c) => c.id)).toEqual(['d2', 'd3', 'd4', 'd5'])
+  })
+
+  it('deckPeek resets to new top 5 after re-deal', () => {
+    const hand = [makeCard('h1', 'red', 'blue'), makeCard('h2', 'green', 'yellow'), makeCard('h3', 'blue', 'red')]
+    const deck = [
+      makeCard('d1', 'yellow', 'green'),
+      makeCard('d2', 'red', 'green'),
+      makeCard('d3', 'blue', 'yellow'),
+      makeCard('d4', 'green', 'red'),
+      makeCard('d5', 'yellow', 'blue'),
+    ]
+    const state = makeState(1, 1, [makeCell(0, 0)], {
+      hand,
+      deck,
+      redealsLeft: 2,
+      initialRedealsLeft: 2,
+      relicsActive: ['peek_5'],
+      deckPeek: deck.slice(0, 5),
+    })
+
+    const next = reDealCards(state)
+
+    // After re-deal the deck is reshuffled; peek must match the new top 5
+    expect(next.deckPeek.map((c) => c.id)).toEqual(next.deck.slice(0, 5).map((c) => c.id))
+  })
 })
 
 describe('reveal_hand_next', () => {

@@ -81,6 +81,19 @@ function applyMesaStartRelics(state: GameState): GameState {
   return next
 }
 
+// Removes peeked cards that have been drawn into hand, shrinking the preview one by one
+function refreshDeckPeek(state: GameState): GameState {
+  if (!hasRelic(state.relicsActive, 'peek_5')) return state
+  const deckIds = new Set(state.deck.map(c => c.id))
+  return { ...state, deckPeek: state.deckPeek.filter(c => deckIds.has(c.id)) }
+}
+
+// Resets the peek to the new top 5 after a re-deal reshuffles the deck
+function resetDeckPeek(state: GameState): GameState {
+  if (!hasRelic(state.relicsActive, 'peek_5')) return state
+  return { ...state, deckPeek: state.deck.slice(0, 5) }
+}
+
 function applyRedealRelics(state: GameState): GameState {
   if (!hasRelic(state.relicsActive, 'wild_on_redeal')) {
     return state
@@ -113,5 +126,7 @@ export {
   hasRelic,
   initialRedealsLeft,
   redealPenalty,
+  refreshDeckPeek,
+  resetDeckPeek,
   type Relic,
 }

@@ -1,5 +1,5 @@
 import { getCard, getCellIndex, isSolved, isTableFull, shuffleDeck } from '@/game/helpers'
-import { applyRedealRelics, hasRelic } from '@/game/relics'
+import { applyRedealRelics, hasRelic, refreshDeckPeek, resetDeckPeek } from '@/game/relics'
 import type { GameState, Place, Swap } from '@/game/types'
 
 const HAND_SIZE = 3
@@ -92,7 +92,7 @@ function applyMove(state: GameState, move: Place): GameState {
     return { ...nextState, status: 'lost' }
   }
 
-  return drawCards(nextState)
+  return refreshDeckPeek(drawCards(nextState))
 }
 
 function swapCard(state: GameState, move: Swap): GameState {
@@ -136,7 +136,7 @@ function reDealCards(state: GameState): GameState {
     redealsLeft: state.redealsLeft - 1,
   }
 
-  return applyRedealRelics(drawCards(newState))
+  return applyRedealRelics(resetDeckPeek(drawCards(newState)))
 }
 
 export {
