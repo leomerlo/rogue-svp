@@ -9,16 +9,26 @@ import { runReducer } from '@/game/runReducer'
 describe('App', () => {
   afterEach(() => cleanup())
 
-  it('renders GameView with board and hand on mesa 0', () => {
+  it('shows splash screen on initial load', () => {
     render(<App />)
+
+    expect(screen.getByTestId('splash-screen')).toBeInTheDocument()
+    expect(screen.queryByTestId('game-view')).not.toBeInTheDocument()
+  })
+
+  it('renders GameView with board and hand after dismissing splash', async () => {
+    render(<App />)
+
+    await userEvent.click(screen.getByTestId('splash-dismiss'))
 
     expect(screen.getByTestId('game-view')).toBeInTheDocument()
     expect(screen.getByTestId('board')).toBeInTheDocument()
     expect(screen.getByTestId('hand')).toBeInTheDocument()
   })
 
-  it('does not show a status overlay while playing', () => {
+  it('does not show a status overlay while playing', async () => {
     render(<App />)
+    await userEvent.click(screen.getByTestId('splash-dismiss'))
 
     expect(screen.queryByRole('status')).not.toBeInTheDocument()
   })
@@ -76,8 +86,21 @@ describe('AppContent', () => {
     )
   })
 
+  it('shows splash screen when run status is splash', () => {
+    const splashState = createRunState('test')
+
+    render(
+      <RunContext.Provider value={{ runState: splashState, runDispatch: () => {} }}>
+        <AppContent />
+      </RunContext.Provider>
+    )
+
+    expect(screen.getByTestId('splash-screen')).toBeInTheDocument()
+    expect(screen.queryByTestId('game-view')).not.toBeInTheDocument()
+  })
+
   it('renders GameView when run is playing', () => {
-    const playingState = createRunState('test')
+    const playingState = runReducer(createRunState('test'), { type: 'startMesa' })
 
     render(
       <RunContext.Provider value={{ runState: playingState, runDispatch: () => {} }}>

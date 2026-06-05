@@ -52,6 +52,7 @@ type GameAction =
 type RunAction =
   | { type: 'advanceLevel'; mesaScore: number }
   | { type: 'startReward'; mesaScore: number }
+  | { type: 'startMesa' }
   | { type: 'endRunLoss' }
   | { type: 'applyRelic'; relicId: RelicId }
   | { type: 'newRun'; seed: string }
@@ -86,8 +87,9 @@ interface RunState {
   relicsActive: RelicId[]
   scoreTotal: number
   seed: string
-  status: 'playing' | 'won' | 'lost' | 'reward'
+  status: 'playing' | 'won' | 'lost' | 'reward' | 'splash'
   pendingMesaScore: number
+  partyAssignments: Array<{ partyTypeId: string; characterName: string }>
 }
 
 export type { ActionOf, Card, Cell, CellState, Color, GameAction, GameState, InteractionAction, Place, RegularColor, RelicId, RunAction, RunState, Side, Swap, TopologyDef };
