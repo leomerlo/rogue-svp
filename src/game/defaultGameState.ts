@@ -16,7 +16,6 @@ export function createDefaultGameState(): GameState {
     initialRedealsLeft: 4,
     relicsActive: [],
     deckPeek: [],
-    revealedNextDraw: null,
     placedCards: {},
     status: 'playing',
     selectedCardId: null,

@@ -26,7 +26,6 @@ interface GameState {
   initialRedealsLeft: number;
   relicsActive: RelicId[];
   deckPeek: Card[];
-  revealedNextDraw: Card | null;
   placedCards: Record<string, Card>;
   status: 'playing' | 'won' | 'lost';
   selectedCardId: string | null;

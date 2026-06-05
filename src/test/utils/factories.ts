@@ -46,7 +46,6 @@ export function makeState(
     initialRedealsLeft?: number
     relicsActive?: GameState['relicsActive']
     deckPeek?: Card[]
-    revealedNextDraw?: Card | null
   } = {},
 ): GameState {
   return {
@@ -59,7 +58,6 @@ export function makeState(
     initialRedealsLeft: options.initialRedealsLeft ?? options.redealsLeft ?? 4,
     relicsActive: options.relicsActive ?? [],
     deckPeek: options.deckPeek ?? [],
-    revealedNextDraw: options.revealedNextDraw ?? null,
     placedCards: options.placedCards ?? {},
     status: options.status ?? 'playing',
     selectedCardId: options.selectedCardId ?? null,

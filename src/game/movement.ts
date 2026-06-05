@@ -33,7 +33,7 @@ function drawCards(state: GameState): GameState {
     hand.push(deck.shift()!)
   }
 
-  return { ...state, hand, deck, revealedNextDraw: null }
+  return { ...state, hand, deck }
 }
 
 function selectCard(state: GameState, cardId: string): GameState {
@@ -92,12 +92,7 @@ function applyMove(state: GameState, move: Place): GameState {
     return { ...nextState, status: 'lost' }
   }
 
-  const withReveal =
-    hasRelic(nextState.relicsActive, 'reveal_hand_next') && nextState.deck.length > 0
-      ? { ...nextState, revealedNextDraw: nextState.deck[0]! }
-      : nextState
-
-  return drawCards(withReveal)
+  return drawCards(nextState)
 }
 
 function swapCard(state: GameState, move: Swap): GameState {
