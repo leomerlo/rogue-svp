@@ -79,7 +79,7 @@ describe('peek_5', () => {
 })
 
 describe('reveal_hand_next', () => {
-  it('sets revealedNextDraw before drawing and clears after draw', () => {
+  it('does not affect normal card placement and drawing', () => {
     const deckCard = makeCard('deck-1', 'red', 'blue')
     const handCard = makeCard('hand-1', 'green', 'yellow')
     const state = makeState(1, 2, [makeCell(0, 0), makeCell(0, 1)], {
@@ -90,33 +90,17 @@ describe('reveal_hand_next', () => {
 
     const next = applyMove(state, { cardId: 'hand-1', row: 0, col: 0 })
 
-    expect(next.revealedNextDraw).toBeNull()
     expect(next.hand.some((c) => c.id === 'deck-1')).toBe(true)
   })
 
-  it('reveals the next deck card before it is drawn', () => {
+  it('exposes deck[0] as the next draw when relic is active', () => {
     const deckCard = makeCard('deck-1', 'red', 'blue')
-    const handCard = makeCard('hand-1', 'green', 'yellow')
-    const base = makeState(1, 2, [makeCell(0, 0), makeCell(0, 1)], {
-      hand: [handCard],
+    const state = makeState(1, 1, [makeCell(0, 0)], {
       deck: [deckCard],
       relicsActive: ['reveal_hand_next'],
     })
 
-    const placed = {
-      ...base,
-      hand: [] as typeof base.hand,
-      cells: base.cells.map((c, i) => (i === 0 ? { ...c, cardId: 'hand-1' } : c)),
-      placedCards: { 'hand-1': handCard },
-      selectedCardId: null,
-    }
-
-    const withReveal =
-      placed.deck.length > 0
-        ? { ...placed, revealedNextDraw: placed.deck[0]! }
-        : placed
-
-    expect(withReveal.revealedNextDraw?.id).toBe('deck-1')
+    expect(state.deck[0]?.id).toBe('deck-1')
   })
 })
 

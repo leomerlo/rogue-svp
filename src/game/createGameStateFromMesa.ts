@@ -67,7 +67,6 @@ function createGameStateFromMesa(
     initialRedealsLeft: startingRedeals,
     relicsActive,
     deckPeek: [],
-    revealedNextDraw: null,
     placedCards,
     status: 'playing',
     selectedCardId: null,

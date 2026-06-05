@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import Board from '@/ui/GameView/components/Board'
 import Hand from '@/ui/GameView/components/Hand'
 import Controls from '@/ui/GameView/components/Controls'
+import DeckInfo from '@/ui/GameView/components/DeckInfo'
 import StatusOverlay from '@/ui/GameView/components/StatusOverlay'
 import { useGame } from '@/ui/hooks/useGame'
 import { useRun } from '@/ui/hooks/useRun'
@@ -36,6 +37,7 @@ const GameView = () => {
       <div className="relative flex flex-col gap-2">
         <Board />
         <Hand />
+        <DeckInfo />
         <Controls />
         <StatusOverlay status={gameState.status} />
       </div>
