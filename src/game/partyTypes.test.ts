@@ -23,9 +23,9 @@ describe('PARTY_TYPES', () => {
     expect(PARTY_TYPES.map((p) => p.id)).toEqual([...EXPECTED_IDS])
   })
 
-  it('includes [NAME] in every one-liner template', () => {
+  it('includes [CHAR.name] in every one-liner template', () => {
     for (const party of PARTY_TYPES) {
-      expect(party.oneLiner).toContain('[NAME]')
+      expect(party.oneLiner).toContain('[CHAR.name]')
     }
   })
 })
