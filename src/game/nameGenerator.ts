@@ -82,4 +82,11 @@ function generateName(rng: SeededRandom): string {
   return `${firstName} ${familyName}`
 }
 
-export { generateFullName, generateName }
+/** Splits a "FirstName FamilyName" string produced by generateName into its two parts. */
+function parseCharacterName(characterName: string): { name: string; family: string } {
+  const spaceIdx = characterName.indexOf(' ')
+  if (spaceIdx < 0) return { name: characterName, family: '' }
+  return { name: characterName.slice(0, spaceIdx), family: characterName.slice(spaceIdx + 1) }
+}
+
+export { generateFullName, generateName, parseCharacterName }

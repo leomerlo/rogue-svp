@@ -10,6 +10,8 @@ import { createRunState } from '@/game/createRunState'
 import { createGeneratedGameState } from '@/game/createGeneratedGameState'
 import { RELICS } from '@/game/relics'
 import { PARTY_TYPES } from '@/game/partyTypes'
+import { fillTemplate } from '@/game/fillTemplate'
+import { parseCharacterName } from '@/game/nameGenerator'
 import { hashStringToSeed, seededRandom, shuffled } from '@/game/seededRandom'
 
 const INITIAL_RUN_STATE = createRunState('run-001')
@@ -41,7 +43,8 @@ export function AppContent() {
     const assignment = runState.partyAssignments[runState.topologyIndex]
     const partyType = PARTY_TYPES.find((pt) => pt.id === assignment?.partyTypeId)
     const partyTypeLabel = partyType?.label ?? ''
-    const oneLiner = (partyType?.oneLiner ?? '').replaceAll('[NAME]', assignment?.characterName ?? '')
+    const char = parseCharacterName(assignment?.characterName ?? '')
+    const oneLiner = fillTemplate(partyType?.oneLiner ?? '', { char })
     return (
       <SplashScreen
         partyTypeLabel={partyTypeLabel}

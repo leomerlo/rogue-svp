@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { assignPartyTypes } from '@/game/assignPartyTypes'
-import { generateFullName, generateName } from '@/game/nameGenerator'
+import { generateFullName, generateName, parseCharacterName } from '@/game/nameGenerator'
 import { hashStringToSeed, seededRandom } from '@/game/seededRandom'
 
 function bootstrapRunGeneration(seed: string) {
@@ -57,5 +57,23 @@ describe('generateName', () => {
     const second = bootstrapRunGeneration('run-seed')
     expect(second.partyTypes.map((p) => p.id)).toEqual(first.partyTypes.map((p) => p.id))
     expect(second.names).toEqual(first.names)
+  })
+})
+
+describe('parseCharacterName', () => {
+  it('splits "FirstName FamilyName" correctly', () => {
+    expect(parseCharacterName('Elena García')).toEqual({ name: 'Elena', family: 'García' })
+  })
+
+  it('handles a name with no space', () => {
+    expect(parseCharacterName('Mononombre')).toEqual({ name: 'Mononombre', family: '' })
+  })
+
+  it('handles empty string', () => {
+    expect(parseCharacterName('')).toEqual({ name: '', family: '' })
+  })
+
+  it('handles multi-word family name', () => {
+    expect(parseCharacterName('Ana De La Cruz')).toEqual({ name: 'Ana', family: 'De La Cruz' })
   })
 })
