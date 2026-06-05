@@ -2,12 +2,14 @@ import { useMemo } from 'react'
 import GameView from '@/ui/GameView'
 import RewardScreen from '@/ui/RewardScreen'
 import RunEndScreen from '@/ui/RunEndScreen'
+import SplashScreen from '@/ui/SplashScreen'
 import { GameProvider } from '@/ui/providers/GameProvider'
 import { RunProvider } from '@/ui/providers/RunProvider'
 import { useRun } from '@/ui/hooks/useRun'
 import { createRunState } from '@/game/createRunState'
 import { createGeneratedGameState } from '@/game/createGeneratedGameState'
 import { RELICS } from '@/game/relics'
+import { PARTY_TYPES } from '@/game/partyTypes'
 import { hashStringToSeed, seededRandom, shuffled } from '@/game/seededRandom'
 
 const INITIAL_RUN_STATE = createRunState('run-001')
@@ -34,6 +36,20 @@ export function AppContent() {
     const available = RELICS.filter((r) => !runState.relicsActive.includes(r.id))
     return shuffled(available, rng).slice(0, 3)
   }, [runState.status, runState.seed, runState.topologyIndex, runState.relicsActive])
+
+  if (runState.status === 'splash') {
+    const assignment = runState.partyAssignments[runState.topologyIndex]
+    const partyType = PARTY_TYPES.find((pt) => pt.id === assignment?.partyTypeId)
+    const partyTypeLabel = partyType?.label ?? ''
+    const oneLiner = (partyType?.oneLiner ?? '').replaceAll('[NAME]', assignment?.characterName ?? '')
+    return (
+      <SplashScreen
+        partyTypeLabel={partyTypeLabel}
+        oneLiner={oneLiner}
+        onDismiss={() => runDispatch({ type: 'startMesa' })}
+      />
+    )
+  }
 
   if (runState.status === 'won' || runState.status === 'lost') {
     return (

@@ -4,14 +4,27 @@ import { runReducer } from '@/game/runReducer'
 
 describe('createRunState', () => {
   it('returns a valid initial RunState', () => {
-    expect(createRunState('run-seed')).toEqual({
-      topologyIndex: 0,
-      relicsActive: [],
-      scoreTotal: 0,
-      seed: 'run-seed',
-      status: 'playing',
-      pendingMesaScore: 0,
-    })
+    const state = createRunState('run-seed')
+    expect(state.topologyIndex).toBe(0)
+    expect(state.relicsActive).toEqual([])
+    expect(state.scoreTotal).toBe(0)
+    expect(state.seed).toBe('run-seed')
+    expect(state.status).toBe('splash')
+    expect(state.pendingMesaScore).toBe(0)
+    expect(state.partyAssignments).toHaveLength(4)
+    expect(state.partyAssignments[0]).toMatchObject({ partyTypeId: expect.any(String), characterName: expect.any(String) })
+  })
+
+  it('partyAssignments are deterministic for the same seed', () => {
+    const a = createRunState('same-seed')
+    const b = createRunState('same-seed')
+    expect(a.partyAssignments).toEqual(b.partyAssignments)
+  })
+
+  it('partyAssignments differ for different seeds', () => {
+    const a = createRunState('seed-a')
+    const b = createRunState('seed-b')
+    expect(a.partyAssignments).not.toEqual(b.partyAssignments)
   })
 })
 
@@ -53,7 +66,7 @@ describe('runReducer', () => {
 
     expect(state.scoreTotal).toBe(35)
     expect(state.topologyIndex).toBe(2)
-    expect(state.status).toBe('playing')
+    expect(state.status).toBe('splash')
   })
 
   it('startReward sets status to reward and stores pendingMesaScore', () => {
@@ -66,16 +79,26 @@ describe('runReducer', () => {
     expect(next.topologyIndex).toBe(0)
   })
 
-  it('advanceLevel from reward clears pendingMesaScore and resumes playing', () => {
+  it('advanceLevel from reward clears pendingMesaScore and shows splash for next mesa', () => {
     let state = createRunState('seed')
     state = runReducer(state, { type: 'startReward', mesaScore: 50 })
 
     const next = runReducer(state, { type: 'advanceLevel', mesaScore: 50 })
 
-    expect(next.status).toBe('playing')
+    expect(next.status).toBe('splash')
     expect(next.pendingMesaScore).toBe(0)
     expect(next.topologyIndex).toBe(1)
     expect(next.scoreTotal).toBe(50)
+  })
+
+  it('startMesa transitions from splash to playing', () => {
+    const state = createRunState('seed')
+    expect(state.status).toBe('splash')
+
+    const next = runReducer(state, { type: 'startMesa' })
+
+    expect(next.status).toBe('playing')
+    expect(next.topologyIndex).toBe(0)
   })
 
   it('newRun resets to a fresh RunState with the given seed', () => {
