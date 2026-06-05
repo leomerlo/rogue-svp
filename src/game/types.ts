@@ -1,6 +1,22 @@
 type RegularColor = 'red' | 'blue' | 'green' | 'yellow';
 type Color = RegularColor | 'wild';
 
+const ARCHETYPES = ['snob', 'heir', 'diplomat', 'femme_fatale', 'bohemian', 'matriarch', 'outsider', 'gossip'] as const;
+type Archetype = typeof ARCHETYPES[number];
+
+const NARRATIVE_TAGS = ['married', 'bereaved', 'newborn'] as const;
+type NarrativeTag = typeof NARRATIVE_TAGS[number];
+
+interface CharacterSlot {
+  name: string;
+  archetype: Archetype;
+  tags: NarrativeTag[];
+}
+
+interface NarrativeState {
+  roster: CharacterSlot[];
+}
+
 type Side = 'top' | 'bottom' | 'left' | 'right';
 
 type Card =
@@ -56,6 +72,7 @@ type RunAction =
   | { type: 'endRunLoss' }
   | { type: 'applyRelic'; relicId: RelicId }
   | { type: 'newRun'; seed: string }
+  | { type: 'applyNarrativeTag'; slotIndex: number; tag: NarrativeTag }
 
 type ActionOf<T extends GameAction['type'] | RunAction['type']> = Extract<GameAction | RunAction, { type: T }>
 
@@ -90,6 +107,8 @@ interface RunState {
   status: 'playing' | 'won' | 'lost' | 'reward' | 'splash'
   pendingMesaScore: number
   partyAssignments: Array<{ partyTypeId: string; characterName: string }>
+  narrativeState: NarrativeState
 }
 
-export type { ActionOf, Card, Cell, CellState, Color, GameAction, GameState, InteractionAction, Place, RegularColor, RelicId, RunAction, RunState, Side, Swap, TopologyDef };
+export { ARCHETYPES, NARRATIVE_TAGS };
+export type { ActionOf, Archetype, Card, Cell, CellState, CharacterSlot, Color, GameAction, GameState, InteractionAction, NarrativeState, NarrativeTag, Place, RegularColor, RelicId, RunAction, RunState, Side, Swap, TopologyDef };

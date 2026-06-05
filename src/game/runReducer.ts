@@ -27,6 +27,16 @@ export function runReducer(state: RunState, action: RunAction): RunState {
       }
     case 'newRun':
       return createRunState(action.seed)
+    case 'applyNarrativeTag': {
+      const { slotIndex, tag } = action
+      if (slotIndex < 0 || slotIndex >= state.narrativeState.roster.length) return state
+      const roster = state.narrativeState.roster.map((slot, i) => {
+        if (i !== slotIndex) return slot
+        if (slot.tags.includes(tag)) return slot
+        return { ...slot, tags: [...slot.tags, tag] }
+      })
+      return { ...state, narrativeState: { ...state.narrativeState, roster } }
+    }
     default:
       return state
   }
