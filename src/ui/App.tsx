@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import GameView from '@/ui/GameView'
 import RewardScreen from '@/ui/RewardScreen'
+import RunEndScreen from '@/ui/RunEndScreen'
 import { GameProvider } from '@/ui/providers/GameProvider'
 import { RunProvider } from '@/ui/providers/RunProvider'
 import { useRun } from '@/ui/hooks/useRun'
@@ -34,21 +35,13 @@ export function AppContent() {
     return shuffled(available, rng).slice(0, 3)
   }, [runState.status, runState.seed, runState.topologyIndex, runState.relicsActive])
 
-  if (runState.status === 'won') {
-    return <div data-testid="run-complete">Run Complete!</div>
-  }
-
-  if (runState.status === 'lost') {
+  if (runState.status === 'won' || runState.status === 'lost') {
     return (
-      <div className="flex flex-col items-center gap-4" data-testid="game-over">
-        <p className="text-3xl font-bold text-red-500">Game Over</p>
-        <button
-          onClick={() => runDispatch({ type: 'newRun', seed: `run-${Date.now()}` })}
-          className="rounded-md bg-slate-700 px-4 py-2 text-slate-100 hover:bg-slate-600"
-        >
-          Play Again
-        </button>
-      </div>
+      <RunEndScreen
+        status={runState.status}
+        scoreTotal={runState.scoreTotal}
+        onNewRun={() => runDispatch({ type: 'newRun', seed: `run-${Date.now()}` })}
+      />
     )
   }
 
