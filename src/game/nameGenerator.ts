@@ -54,6 +54,16 @@ const FAMILY_NAMES = [
   'Ruiz',
   'Sánchez',
   'Vega',
+  'Aguirre',
+  'Arroyo',
+  'Blanco',
+  'Cabrera',
+  'Cano',
+  'Cortés',
+  'Cruz',
+  'Díaz',
+  'Domínguez',
+  'Flores',
 ] as const
 
 function pickFromPool<T>(pool: readonly T[], rng: SeededRandom): T {
@@ -61,10 +71,15 @@ function pickFromPool<T>(pool: readonly T[], rng: SeededRandom): T {
   return pool[index]!
 }
 
-function generateName(rng: SeededRandom): string {
-  const first = pickFromPool(FIRST_NAMES, rng)
-  const family = pickFromPool(FAMILY_NAMES, rng)
-  return `${first} ${family}`
+function generateFullName(rng: SeededRandom): { firstName: string; familyName: string } {
+  const firstName = pickFromPool(FIRST_NAMES, rng)
+  const familyName = pickFromPool(FAMILY_NAMES, rng)
+  return { firstName, familyName }
 }
 
-export { generateName }
+function generateName(rng: SeededRandom): string {
+  const { firstName, familyName } = generateFullName(rng)
+  return `${firstName} ${familyName}`
+}
+
+export { generateFullName, generateName }

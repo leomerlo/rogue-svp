@@ -12,7 +12,12 @@ describe('createRunState', () => {
     expect(state.status).toBe('splash')
     expect(state.pendingMesaScore).toBe(0)
     expect(state.partyAssignments).toHaveLength(4)
-    expect(state.partyAssignments[0]).toMatchObject({ partyTypeId: expect.any(String), characterName: expect.any(String) })
+    expect(state.partyAssignments[0]).toMatchObject({
+      partyTypeId: expect.any(String),
+      characterName: expect.any(String),
+      familyName: expect.any(String),
+      archetypeId: expect.any(String),
+    })
   })
 
   it('partyAssignments are deterministic for the same seed', () => {
