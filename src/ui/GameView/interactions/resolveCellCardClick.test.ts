@@ -19,7 +19,7 @@ describe('resolveCellCardClick', () => {
     expect(resolveCellCardClick(state, cell)).toEqual({ type: 'deselectCard' })
   })
 
-  it('returns placeCard when selected card comes from hand', () => {
+  it('returns placeCard when selected card comes from hand and target cell is empty', () => {
     const handCard = makeCard('h1', 'blue', 'yellow')
     const target = makeCell(0, 0)
     const state = makeState(1, 1, [target], { hand: [handCard], selectedCardId: 'h1' })
@@ -28,6 +28,19 @@ describe('resolveCellCardClick', () => {
       type: 'placeCard',
       move: { cardId: 'h1', row: 0, col: 0 },
     })
+  })
+
+  it('returns null when a hand card is selected but target cell is occupied', () => {
+    const handCard = makeCard('h1', 'blue', 'yellow')
+    const boardCard = makeCard('b1', 'red', 'green')
+    const target = makeCell(0, 0, { cardId: 'b1' })
+    const state = makeState(1, 1, [target], {
+      hand: [handCard],
+      placedCards: { b1: boardCard },
+      selectedCardId: 'h1',
+    })
+
+    expect(resolveCellCardClick(state, target)).toBeNull()
   })
 
   it('returns swapCard when selected card comes from the board', () => {
