@@ -23,8 +23,9 @@ export function resolveCellCardClick(state: GameState, targetCell: Cell): Resolv
     return { type: 'deselectCard' }
   }
 
-  // Selected card comes from hand => place
+  // Selected card comes from hand => only place on empty cells
   if (isCardInHand(state, selectedId)) {
+    if (targetCardId !== null) return null
     return {
       type: 'placeCard',
       move: { cardId: selectedId, row: targetCell.row, col: targetCell.col },

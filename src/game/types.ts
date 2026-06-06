@@ -4,6 +4,25 @@ type Color = RegularColor | 'wild';
 const NARRATIVE_TAGS = ['married', 'bereaved', 'newborn'] as const;
 type NarrativeTag = typeof NARRATIVE_TAGS[number];
 
+interface EncounterOption {
+  label: string;
+  tag: NarrativeTag;
+  tagTarget: 'charA' | 'charB';
+  rumores: number;
+}
+
+interface EncounterDef {
+  id: string;
+  prompt: string;
+  options: EncounterOption[];
+}
+
+interface RunEncounter {
+  encounterId: string;
+  charASlotIndex: number;
+  charBSlotIndex: number;
+}
+
 interface Archetype {
   id: string
   label: string
@@ -77,6 +96,8 @@ type RunAction =
   | { type: 'applyRelic'; relicId: RelicId }
   | { type: 'newRun'; seed: string }
   | { type: 'applyNarrativeTag'; slotIndex: number; tag: NarrativeTag }
+  | { type: 'applyRumores'; amount: number }
+  | { type: 'resolveEncounter'; slotIndex: number; tag: NarrativeTag; rumores: number }
 
 type ActionOf<T extends GameAction['type'] | RunAction['type']> = Extract<GameAction | RunAction, { type: T }>
 
@@ -108,11 +129,13 @@ interface RunState {
   relicsActive: RelicId[]
   scoreTotal: number
   seed: string
-  status: 'playing' | 'won' | 'lost' | 'reward' | 'splash'
+  status: 'playing' | 'won' | 'lost' | 'reward' | 'splash' | 'encounter'
   pendingMesaScore: number
+  rumores: number
+  encounter: RunEncounter
   partyAssignments: Array<{ partyTypeId: string; characterName: string; familyName: string; archetypeId: string; oneLiner: string }>
   narrativeState: NarrativeState
 }
 
 export { NARRATIVE_TAGS };
-export type { ActionOf, Archetype, Card, Cell, CellState, CharacterSlot, Color, GameAction, GameState, InteractionAction, NarrativeState, NarrativeTag, Place, RegularColor, RelicId, RunAction, RunState, Side, Swap, TopologyDef };
+export type { ActionOf, Archetype, Card, Cell, CellState, CharacterSlot, Color, EncounterDef, EncounterOption, GameAction, GameState, InteractionAction, NarrativeState, NarrativeTag, Place, RegularColor, RelicId, RunAction, RunEncounter, RunState, Side, Swap, TopologyDef };

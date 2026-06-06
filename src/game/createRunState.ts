@@ -1,5 +1,6 @@
-import type { NarrativeState, NarrativeTag, RunState } from '@/game/types'
+import type { NarrativeState, NarrativeTag, RunEncounter, RunState } from '@/game/types'
 import { ARCHETYPES } from '@/game/archetypes'
+import { ENCOUNTERS } from '@/game/encounters'
 import { assignPartyTypes } from '@/game/assignPartyTypes'
 import { generateFullName } from '@/game/nameGenerator'
 import { hashStringToSeed, seededRandom } from '@/game/seededRandom'
@@ -18,6 +19,14 @@ function createNarrativeState(rng: () => number): NarrativeState {
   return { roster }
 }
 
+function createRunEncounter(rng: () => number): RunEncounter {
+  const encounterId = ENCOUNTERS[Math.floor(rng() * ENCOUNTERS.length)]!.id
+  const charASlotIndex = Math.floor(rng() * ROSTER_SIZE)
+  let charBSlotIndex = Math.floor(rng() * (ROSTER_SIZE - 1))
+  if (charBSlotIndex >= charASlotIndex) charBSlotIndex++
+  return { encounterId, charASlotIndex, charBSlotIndex }
+}
+
 function createRunState(seed: string): RunState {
   const rng = seededRandom(hashStringToSeed(seed))
   const partyTypes = assignPartyTypes(rng)
@@ -33,6 +42,7 @@ function createRunState(seed: string): RunState {
     }
   })
   const narrativeState = createNarrativeState(rng)
+  const encounter = createRunEncounter(rng)
   return {
     topologyIndex: 0,
     relicsActive: [],
@@ -40,6 +50,8 @@ function createRunState(seed: string): RunState {
     seed,
     status: 'splash',
     pendingMesaScore: 0,
+    rumores: 0,
+    encounter,
     partyAssignments,
     narrativeState,
   }
