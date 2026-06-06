@@ -1,27 +1,36 @@
-import { ARCHETYPES } from '@/game/types'
 import type { NarrativeState, NarrativeTag, RunState } from '@/game/types'
+import { ARCHETYPES } from '@/game/archetypes'
 import { assignPartyTypes } from '@/game/assignPartyTypes'
-import { generateName } from '@/game/nameGenerator'
+import { generateFullName } from '@/game/nameGenerator'
 import { hashStringToSeed, seededRandom } from '@/game/seededRandom'
 
 const ROSTER_SIZE = 4
 
 function createNarrativeState(rng: () => number): NarrativeState {
-  const roster = Array.from({ length: ROSTER_SIZE }, () => ({
-    name: generateName(rng),
-    archetype: ARCHETYPES[Math.floor(rng() * ARCHETYPES.length)]!,
-    tags: [] as NarrativeTag[],
-  }))
+  const roster = Array.from({ length: ROSTER_SIZE }, () => {
+    const { firstName, familyName } = generateFullName(rng)
+    return {
+      name: `${firstName} ${familyName}`,
+      archetypeId: ARCHETYPES[Math.floor(rng() * ARCHETYPES.length)]!.id,
+      tags: [] as NarrativeTag[],
+    }
+  })
   return { roster }
 }
 
 function createRunState(seed: string): RunState {
   const rng = seededRandom(hashStringToSeed(seed))
   const partyTypes = assignPartyTypes(rng)
-  const partyAssignments = partyTypes.map((pt) => ({
-    partyTypeId: pt.id,
-    characterName: generateName(rng),
-  }))
+  const partyAssignments = partyTypes.map((pt) => {
+    const { firstName, familyName } = generateFullName(rng)
+    const archetype = ARCHETYPES[Math.floor(rng() * ARCHETYPES.length)]!
+    return {
+      partyTypeId: pt.id,
+      characterName: `${firstName} ${familyName}`,
+      familyName,
+      archetypeId: archetype.id,
+    }
+  })
   const narrativeState = createNarrativeState(rng)
   return {
     topologyIndex: 0,

@@ -1,15 +1,19 @@
 type RegularColor = 'red' | 'blue' | 'green' | 'yellow';
 type Color = RegularColor | 'wild';
 
-const ARCHETYPES = ['snob', 'heir', 'diplomat', 'femme_fatale', 'bohemian', 'matriarch', 'outsider', 'gossip'] as const;
-type Archetype = typeof ARCHETYPES[number];
-
 const NARRATIVE_TAGS = ['married', 'bereaved', 'newborn'] as const;
 type NarrativeTag = typeof NARRATIVE_TAGS[number];
 
+interface Archetype {
+  id: string
+  label: string
+  socialPosture: string
+  comicWeakness: string
+}
+
 interface CharacterSlot {
   name: string;
-  archetype: Archetype;
+  archetypeId: string;
   tags: NarrativeTag[];
 }
 
@@ -55,7 +59,7 @@ type Swap = {
   to: { row: number; col: number }
 }
 
-type GameAction = 
+type GameAction =
   | { type: 'selectCard'; cardId: string }
   | { type: 'deselectCard' }
   | { type: 'placeCard'; move: Place }
@@ -106,9 +110,9 @@ interface RunState {
   seed: string
   status: 'playing' | 'won' | 'lost' | 'reward' | 'splash'
   pendingMesaScore: number
-  partyAssignments: Array<{ partyTypeId: string; characterName: string }>
+  partyAssignments: Array<{ partyTypeId: string; characterName: string; familyName: string; archetypeId: string }>
   narrativeState: NarrativeState
 }
 
-export { ARCHETYPES, NARRATIVE_TAGS };
+export { NARRATIVE_TAGS };
 export type { ActionOf, Archetype, Card, Cell, CellState, CharacterSlot, Color, GameAction, GameState, InteractionAction, NarrativeState, NarrativeTag, Place, RegularColor, RelicId, RunAction, RunState, Side, Swap, TopologyDef };

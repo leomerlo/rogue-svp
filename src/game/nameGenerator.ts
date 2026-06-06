@@ -54,6 +54,16 @@ const FAMILY_NAMES = [
   'Ruiz',
   'Sánchez',
   'Vega',
+  'Aguirre',
+  'Arroyo',
+  'Blanco',
+  'Cabrera',
+  'Cano',
+  'Cortés',
+  'Cruz',
+  'Díaz',
+  'Domínguez',
+  'Flores',
 ] as const
 
 function pickFromPool<T>(pool: readonly T[], rng: SeededRandom): T {
@@ -61,10 +71,15 @@ function pickFromPool<T>(pool: readonly T[], rng: SeededRandom): T {
   return pool[index]!
 }
 
+function generateFullName(rng: SeededRandom): { firstName: string; familyName: string } {
+  const firstName = pickFromPool(FIRST_NAMES, rng)
+  const familyName = pickFromPool(FAMILY_NAMES, rng)
+  return { firstName, familyName }
+}
+
 function generateName(rng: SeededRandom): string {
-  const first = pickFromPool(FIRST_NAMES, rng)
-  const family = pickFromPool(FAMILY_NAMES, rng)
-  return `${first} ${family}`
+  const { firstName, familyName } = generateFullName(rng)
+  return `${firstName} ${familyName}`
 }
 
 /** Splits a "FirstName FamilyName" string produced by generateName into its two parts. */
@@ -74,4 +89,4 @@ function parseCharacterName(characterName: string): { name: string; family: stri
   return { name: characterName.slice(0, spaceIdx), family: characterName.slice(spaceIdx + 1) }
 }
 
-export { generateName, parseCharacterName }
+export { generateFullName, generateName, parseCharacterName }

@@ -8,13 +8,13 @@ describe('NarrativeState — initial shape', () => {
     expect(state.narrativeState.roster).toHaveLength(4)
   })
 
-  it('each slot has a name, archetype, and empty tags array', () => {
+  it('each slot has a name, archetypeId, and empty tags array', () => {
     const state = createRunState('test-seed')
     for (const slot of state.narrativeState.roster) {
       expect(typeof slot.name).toBe('string')
       expect(slot.name.length).toBeGreaterThan(0)
-      expect(typeof slot.archetype).toBe('string')
-      expect(slot.archetype.length).toBeGreaterThan(0)
+      expect(typeof slot.archetypeId).toBe('string')
+      expect(slot.archetypeId.length).toBeGreaterThan(0)
       expect(slot.tags).toEqual([])
     }
   })
