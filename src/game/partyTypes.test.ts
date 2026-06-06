@@ -13,19 +13,21 @@ const EXPECTED_IDS = [
 ] as const
 
 describe('PARTY_TYPES', () => {
-  it('exports all 8 party types with id, label, and oneLiner', () => {
+  it('exports all 8 party types with id, label, and oneLiners', () => {
     expect(PARTY_TYPES).toHaveLength(8)
     for (const party of PARTY_TYPES) {
       expect(party.id).toBeTruthy()
       expect(party.label).toBeTruthy()
-      expect(party.oneLiner).toBeTruthy()
+      expect(party.oneLiners.length).toBeGreaterThanOrEqual(5)
     }
     expect(PARTY_TYPES.map((p) => p.id)).toEqual([...EXPECTED_IDS])
   })
 
-  it('includes [CHAR.name] in every one-liner template', () => {
+  it('includes [CHAR.name] in every one-liner variant', () => {
     for (const party of PARTY_TYPES) {
-      expect(party.oneLiner).toContain('[CHAR.name]')
+      for (const line of party.oneLiners) {
+        expect(line).toContain('[CHAR.name]')
+      }
     }
   })
 })

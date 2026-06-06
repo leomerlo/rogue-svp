@@ -110,7 +110,7 @@ interface RunState {
   seed: string
   status: 'playing' | 'won' | 'lost' | 'reward' | 'splash'
   pendingMesaScore: number
-  partyAssignments: Array<{ partyTypeId: string; characterName: string; familyName: string; archetypeId: string }>
+  partyAssignments: Array<{ partyTypeId: string; characterName: string; familyName: string; archetypeId: string; oneLiner: string }>
   narrativeState: NarrativeState
 }
 
