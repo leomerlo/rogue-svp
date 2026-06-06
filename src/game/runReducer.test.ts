@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { createRunState } from '@/game/createRunState'
-import { runReducer } from '@/game/runReducer'
+import { runReducer, RUN_MESA_COUNT } from '@/game/runReducer'
 
 describe('createRunState', () => {
   it('returns a valid initial RunState', () => {
@@ -71,7 +71,8 @@ describe('runReducer', () => {
 
     expect(state.scoreTotal).toBe(35)
     expect(state.topologyIndex).toBe(2)
-    expect(state.status).toBe('splash')
+    // topology 2 triggers the encounter node, not a splash
+    expect(state.status).toBe('encounter')
   })
 
   it('startReward sets status to reward and stores pendingMesaScore', () => {
@@ -115,5 +116,92 @@ describe('runReducer', () => {
     const next = runReducer(state, { type: 'newRun', seed: 'new-seed' })
 
     expect(next).toEqual(createRunState('new-seed'))
+  })
+})
+
+describe('encounter transitions', () => {
+  it('advanceLevel to topology 2 sets status to encounter', () => {
+    let state = createRunState('seed')
+    // advance through mesa 0 → topology 1
+    state = runReducer(state, { type: 'advanceLevel', mesaScore: 10 })
+    expect(state.topologyIndex).toBe(1)
+    expect(state.status).toBe('splash')
+
+    // advance through mesa 1 → topology 2: should trigger encounter
+    state = runReducer(state, { type: 'advanceLevel', mesaScore: 10 })
+    expect(state.topologyIndex).toBe(2)
+    expect(state.status).toBe('encounter')
+  })
+
+  it('advanceLevel to topology 1 does NOT trigger encounter', () => {
+    const state = createRunState('seed')
+    const next = runReducer(state, { type: 'advanceLevel', mesaScore: 10 })
+    expect(next.status).toBe('splash')
+  })
+
+  it('resolveEncounter transitions status to splash', () => {
+    let state = createRunState('seed')
+    state = runReducer(state, { type: 'advanceLevel', mesaScore: 0 })
+    state = runReducer(state, { type: 'advanceLevel', mesaScore: 0 })
+    expect(state.status).toBe('encounter')
+
+    const next = runReducer(state, { type: 'resolveEncounter', slotIndex: 0, tag: 'married', rumores: 8 })
+    expect(next.status).toBe('splash')
+    expect(next.topologyIndex).toBe(2)
+  })
+
+  it('resolveEncounter applies tag to the specified slot', () => {
+    let state = createRunState('seed')
+    state = runReducer(state, { type: 'advanceLevel', mesaScore: 0 })
+    state = runReducer(state, { type: 'advanceLevel', mesaScore: 0 })
+
+    const next = runReducer(state, { type: 'resolveEncounter', slotIndex: 1, tag: 'bereaved', rumores: 5 })
+    expect(next.narrativeState.roster[1]!.tags).toContain('bereaved')
+    expect(next.narrativeState.roster[0]!.tags).toEqual([])
+  })
+
+  it('resolveEncounter awards the correct rumores amount', () => {
+    let state = createRunState('seed')
+    state = runReducer(state, { type: 'advanceLevel', mesaScore: 0 })
+    state = runReducer(state, { type: 'advanceLevel', mesaScore: 0 })
+
+    const next = runReducer(state, { type: 'resolveEncounter', slotIndex: 0, tag: 'newborn', rumores: 12 })
+    expect(next.rumores).toBe(12)
+  })
+
+  it('applyRumores accumulates on top of existing rumores', () => {
+    let state = createRunState('seed')
+    state = runReducer(state, { type: 'applyRumores', amount: 5 })
+    state = runReducer(state, { type: 'applyRumores', amount: 7 })
+    expect(state.rumores).toBe(12)
+  })
+
+  it('newRun resets rumores to 0', () => {
+    let state = createRunState('seed')
+    state = runReducer(state, { type: 'applyRumores', amount: 20 })
+    const next = runReducer(state, { type: 'newRun', seed: 'fresh' })
+    expect(next.rumores).toBe(0)
+  })
+
+  it('after resolveEncounter the run continues through remaining mesas to won', () => {
+    let state = createRunState('seed')
+    // mesas 0 and 1
+    state = runReducer(state, { type: 'advanceLevel', mesaScore: 0 })
+    state = runReducer(state, { type: 'advanceLevel', mesaScore: 0 })
+    expect(state.status).toBe('encounter')
+
+    // resolve encounter → splash → mesa 2
+    state = runReducer(state, { type: 'resolveEncounter', slotIndex: 0, tag: 'married', rumores: 5 })
+    expect(state.status).toBe('splash')
+
+    state = runReducer(state, { type: 'startMesa' })
+    expect(state.status).toBe('playing')
+
+    // advance mesa 2 → splash, mesa 3 → won
+    state = runReducer(state, { type: 'advanceLevel', mesaScore: 0 })
+    expect(state.status).toBe('splash')
+    state = runReducer(state, { type: 'advanceLevel', mesaScore: 0 })
+    expect(state.status).toBe('won')
+    expect(state.topologyIndex).toBe(RUN_MESA_COUNT)
   })
 })

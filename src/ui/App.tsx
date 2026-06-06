@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
 import GameView from '@/ui/GameView'
+import EncounterScreen from '@/ui/EncounterScreen'
 import RewardScreen from '@/ui/RewardScreen'
 import RunEndScreen from '@/ui/RunEndScreen'
 import SplashScreen from '@/ui/SplashScreen'
@@ -52,6 +53,10 @@ export function AppContent() {
         onDismiss={() => runDispatch({ type: 'startMesa' })}
       />
     )
+  }
+
+  if (runState.status === 'encounter') {
+    return <EncounterScreen />
   }
 
   if (runState.status === 'won' || runState.status === 'lost') {
