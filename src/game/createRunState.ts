@@ -29,6 +29,7 @@ function createRunState(seed: string): RunState {
       characterName: `${firstName} ${familyName}`,
       familyName,
       archetypeId: archetype.id,
+      oneLiner: pt.oneLiner,
     }
   })
   const narrativeState = createNarrativeState(rng)

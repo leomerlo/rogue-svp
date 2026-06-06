@@ -44,7 +44,7 @@ export function AppContent() {
     const partyType = PARTY_TYPES.find((pt) => pt.id === assignment?.partyTypeId)
     const partyTypeLabel = partyType?.label ?? ''
     const char = parseCharacterName(assignment?.characterName ?? '')
-    const oneLiner = fillTemplate(partyType?.oneLiner ?? '', { char })
+    const oneLiner = fillTemplate(assignment?.oneLiner ?? '', { char })
     return (
       <SplashScreen
         partyTypeLabel={partyTypeLabel}
